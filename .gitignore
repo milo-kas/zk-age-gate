@@ -1,0 +1,7 @@
+.idea/
+
+# rust
+target/
+
+# circom
+circuits/build/
