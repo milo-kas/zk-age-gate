@@ -11,9 +11,13 @@ name = "prover"
 version = "0.1.0"
 
 [[package]]
-name = "terminal"
+name = "types"
 version = "0.1.0"
 
 [[package]]
 name = "verifier"
+version = "0.1.0"
+
+[[package]]
+name = "zk-age-gate"
 version = "0.1.0"

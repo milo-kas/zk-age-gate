@@ -1,7 +1,7 @@
 .idea/
 
-# rust
-target/
-
 # circom
 circuits/build/
+
+# Added by cargo
+/target

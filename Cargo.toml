@@ -1,8 +1,15 @@
+[package]
+name = "zk-age-gate"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
 [workspace]
 resolver = "3"
 members = [
-    "issuer",
-    "prover",
-    "verifier",
-    "terminal"
+    "crates/types",
+    "crates/issuer",
+    "crates/prover",
+    "crates/verifier"
 ]
