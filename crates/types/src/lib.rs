@@ -3,31 +3,33 @@
 use ark_bn254::Fr;
 use ed25519_dalek::Signature;
 
-// Prover to Issuer payload structure
+/// Prover to Issuer payload structure
 #[derive(Clone, Debug)]
 pub struct AgeRequest {
     // Prover public key
     pub pk_p: Fr,
-    // Mock ID
+    // Mock ID, Private input; can be used to generate age
     pub id: String,
 }
 
-// Issuer to Prover payload structure
+/// Issuer to Prover payload structure
 #[derive(Clone, Debug)]
-pub struct SignedCommitment {
+pub struct CredentialPackage {
+    // Private inputs
     pub age: u8,
     pub salt: Fr,
+    // Public inputs
     pub commitment: Fr,
     pub signature: Signature,
 }
 
-// Prover to Verifier payload structure
+/// Prover to Verifier payload structure
 #[derive(Clone, Debug)]
 pub struct ProofPackage {
-    // Public inputs:
+    // All public inputs
     // No threshold age as the Verifier already knows it
     pub commitment: Fr,
-    pub prover_pk_p: Fr,
+    pub pk_p: Fr,
     pub signature: Signature,
     // Proof
     pub proof: Vec<u8>,
