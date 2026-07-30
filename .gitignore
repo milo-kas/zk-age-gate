@@ -2,6 +2,7 @@
 
 # circom
 circuits/build/
+node_modules/
 
 # Added by cargo
 /target
