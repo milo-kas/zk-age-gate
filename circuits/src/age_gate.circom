@@ -1,14 +1,24 @@
 pragma circom 2.0.0;
 
-// Is provided age greater than or equal to threshold age
 template AgeGate() {
+    /*
+    Enforce that provided age is greater than or equal to public threshold age
+
+    **SECURITY WARNING**:
+    - This template is strictly designed for human age verification adhering to the macro protocol design
+    - BOTH threshold and provided age size can't be over 255 AND
+    - Public threshold MUST be validated by the verifier via public input before proof verification
+
+    NOTE: poseidon hash commits to the provided age due to issuer trust.
+
+    OPTIMISATION NOTE: For fewer constraints, ranges for providedAge and thresholdAge are left unconstrained,
+    the architecture places 100% trust on the issuer and that the verifier will validate the public thresholdAge.
+    */
 
     signal input providedAge;
     signal input thresholdAge;
 
     signal result;
-
-    signal output isGreaterThanOrEq;
 
     // Hardcode range limit
     // 8 bits: 0 to 255 age range; 9th bit reserved for holding truth value
@@ -32,9 +42,6 @@ template AgeGate() {
 
     var resultBitSum = 0;
 
-    // TODO: lock thresholdAge inside 9 bits (dynamic threshold)
-    // NOTE: poseidon hash locks provided age due to issuer trust
-
     // Loop through all 9 bits (range)
     for (var i = 0; i <= range; i++) {
           resultBitArr[i] <-- (result >> i) & 1;
@@ -50,7 +57,10 @@ template AgeGate() {
     // Proves that the magnitude is maintained within the 9 bit range
     resultBitSum === result;
 
-    isGreaterThanOrEq <== resultBitArr[range];
+    // Final threshold check: if provided age >= threshold age
+    1 === resultBitArr[range];
 }
+
+// poseidon binding with provided age and signature here
 
 component main {public [thresholdAge]} = AgeGate();
