@@ -1,5 +1,7 @@
 pragma circom 2.0.0;
 
+include "circomlib/circuits/poseidon.circom";
+
 template AgeGate() {
     /*
     Enforce that provided age is greater than or equal to public threshold age
@@ -61,6 +63,44 @@ template AgeGate() {
     1 === resultBitArr[range];
 }
 
-// poseidon binding with provided age and signature here
+template AgeCommitmentGate() {
+    /*
+    Age and poseidon wrapper
 
-component main {public [thresholdAge]} = AgeGate();
+    Public inputs:
+    thresholdAge, issuerCommitment
+    pk_p -- Prover's public key
+
+    Private inputs:
+    providedSalt, providedAge
+    */
+
+    // public inputs
+    signal input thresholdAge;
+    signal input issuerCommitment;
+    signal input pk_p;
+
+    // private inputs
+    signal input providedAge;
+    signal input providedSalt;
+
+
+    // Generate poseidon hash with private provided age + salt + pk_p
+    component hasher = Poseidon(3);
+    hasher.inputs[0] <== providedAge;
+    hasher.inputs[1] <== providedSalt;
+    hasher.inputs[2] <== pk_p;
+
+    // Verify the hash containing the age + salt + pk_p matches public hash signed by issuer
+    hasher.out === issuerCommitment;
+
+    component ageGate = AgeGate();
+
+    // As the provided age was proven to not be altered, wire it into the AgeGate
+    ageGate.providedAge <== providedAge;
+    // Public input can safely be wired, burden is on verifier outside the circuit
+    ageGate.thresholdAge <== thresholdAge;
+}
+
+// Run main age gate circuit with commitment and age binding.
+component main {public [thresholdAge, issuerCommitment, pk_p]} = AgeCommitmentGate();
