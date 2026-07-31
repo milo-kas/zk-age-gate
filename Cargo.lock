@@ -462,6 +462,11 @@ dependencies = [
 [[package]]
 name = "prover"
 version = "0.1.0"
+dependencies = [
+ "ark-bn254",
+ "getrandom",
+ "types",
+]
 
 [[package]]
 name = "quote"
@@ -658,5 +663,6 @@ version = "0.1.0"
 dependencies = [
  "ark-bn254",
  "issuer",
+ "prover",
  "types",
 ]

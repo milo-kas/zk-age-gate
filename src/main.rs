@@ -1,34 +1,29 @@
-//! The Protocol Coordinator (Console) that provides the demo interface and coordinates the protocol
+//! # The Protocol Coordinator (Console & Network)
+//! Serves as the interface and network wire for the demo,
+//! it routes cryptographic packages between the isolated Actors
+//!
+//! **Architectural Assumption**: all communication occurs over an authenticated and encrypted channel
 
 use issuer::Issuer;
-
-use types::AgeRequest;
-
-use ark_bn254::Fr;
+use prover::Prover;
 
 fn main() {
-    println!("[Console] Starting protocol demo...");
+    println!("[Protocol Coordinator] Starting protocol demo...");
 
-    // Initialise Issuer (Trusted Authority)
+    // Initialise Isolated Actors
     let issuer = Issuer::new();
+    let mut prover = Prover::new();
 
-    // dummy pk_p
-    let pk_p = Fr::from(1234);
+    // Prover packages the age request ready for the trusted Issuer
+    let age_request = prover.create_age_request("SOME_ID"); // TODO: randomise the ID
 
-    println!("[Prover (INTERNAL)] Packaging AgeRequest...");
-
-    // Package the age request for Issuer
-    let age_request = AgeRequest {
-        pk_p,
-        id: "SOME_ID".to_string() // TODO: randomise the ID
-    };
-
-    println!("[Prover (INTERNAL)] Sending credential request to Issuer...");
+    println!("[Protocol Coordinator] Routing Age Request to Issuer...");
 
     // Trust Boundary - Prover requests CredentialPackage from Issuer
-    // Trust Boundary - Issuer sends CredentialPackage to Prover
     let credential_package = issuer.issue_credential(age_request);
 
-    println!("[Prover (INTERNAL)] Credential Package received!");
-    println!("{:#?}", credential_package);
+    println!("[Protocol Coordinator] Routing Credential Package to Prover...");
+
+    // Trust Boundary - Issuer sends CredentialPackage to Prover
+    prover.receive_credential_package(credential_package);
 }

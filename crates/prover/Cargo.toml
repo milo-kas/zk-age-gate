@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+types = { workspace = true }
+
+ark-bn254 = "0.5.0"
+getrandom = { version = "0.4.3", features = ["sys_rng"] }
