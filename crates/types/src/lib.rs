@@ -1,6 +1,7 @@
 //! Defines the strict rules (payloads) of the protocol
 
-use ark_bn254::Fr;
+use ark_bn254::{Bn254, Fr};
+use ark_groth16::Proof;
 use ed25519_dalek::Signature;
 
 /// Prover to Issuer payload structure
@@ -31,6 +32,7 @@ pub struct ProofPackage {
     pub commitment: Fr,
     pub pk_p: Fr,
     pub signature: Signature,
+
     // Proof
-    pub proof: Vec<u8>,
+    pub proof: Proof<Bn254>,
 }
