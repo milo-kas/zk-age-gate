@@ -84,7 +84,6 @@ template AgeCommitmentGate() {
     signal input providedAge;
     signal input providedSalt;
 
-
     // Generate poseidon hash with private provided age + salt + pk_p
     component hasher = Poseidon(3);
     hasher.inputs[0] <== providedAge;

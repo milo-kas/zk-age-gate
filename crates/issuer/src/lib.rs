@@ -3,15 +3,18 @@
 use ark_bn254::Fr;
 use ark_ff::{BigInteger, PrimeField};
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
+use getrandom::{
+    SysRng,
+    rand_core::{Rng, UnwrapErr},
+};
 use light_poseidon::{Poseidon, PoseidonHasher};
-use getrandom::{SysRng, rand_core::{UnwrapErr, Rng}};
 
 use types::{AgeRequest, CredentialPackage};
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)
 pub struct Issuer {
     /// Private key used to sign age commitment
-    signing_key: SigningKey
+    signing_key: SigningKey,
 }
 
 impl Issuer {
@@ -44,8 +47,7 @@ impl Issuer {
         let age_fr = Fr::from(age);
 
         // Create hasher
-        let mut hasher = Poseidon::<Fr>::new_circom(3)
-            .expect("Failed to initialise Poseidon");
+        let mut hasher = Poseidon::<Fr>::new_circom(3).expect("Failed to initialise Poseidon");
 
         // Hash: Commitment = Poseidon(age, salt, pk_P),
         // Binding the prover's age, random salt, and prover's public key together

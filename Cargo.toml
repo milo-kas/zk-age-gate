@@ -4,11 +4,23 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ark-bn254 = "0.5.0"
 
 issuer = { workspace = true }
 prover = { workspace = true }
-types = { workspace = true }
+
+tokio = "1.53.1"
+ed25519-dalek = "3.0.0"
+
+# ARK
+ark-bn254 = { workspace = true }
+ark-groth16 = { workspace = true }
+ark-snark = { workspace = true }
+ark-ff = { workspace = true }
+ark-circom = { version = "0.5.0", default-features = false }
+
+# Fixed witnesscalc C++ filter for `.dat`. TODO: update after PR approval
+[patch.crates-io]
+witnesscalc-adapter = { git = "https://github.com/milo-kas/witnesscalc_adapter.git", branch = "fix-circom-cpp-filter" }
 
 [workspace]
 resolver = "3"
@@ -23,4 +35,8 @@ members = [
 types = { path = "crates/types" }
 issuer = { path = "crates/issuer" }
 prover = { path = "crates/prover" }
-verifier = { path = "crates/verifier" }
+
+ark-bn254 = "0.5.0"
+ark-ff = "0.5.0"
+ark-groth16 = "0.5.0"
+ark-snark = "0.5.0"
