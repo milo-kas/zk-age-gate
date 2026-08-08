@@ -1,14 +1,77 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+//! Defines the Verifier Actor
+
+use types::ProofPackage;
+
+use std::fs::File;
+use std::io::BufReader;
+// Ark
+use ark_bn254::{Bn254, Fr};
+use ark_ff::{BigInteger, PrimeField};
+use ark_groth16::{Groth16, prepare_verifying_key};
+use ark_snark::SNARK;
+// Signature
+use ed25519_dalek::{Verifier as _, VerifyingKey};
+
+/// Verifier acts as the relaying-party checking the proof
+pub struct Verifier {
+    age_threshold: u8,
+    trusted_issuer_pk: VerifyingKey
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+impl Verifier {
+    /// Instantiate a new Verifier
+    pub fn new(trusted_issuer_pk: VerifyingKey) -> Self {
+        println!("[Verifier (INTERNAL)] Initalising...");
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        Self {
+            age_threshold: 18, // dummy threshold
+            trusted_issuer_pk
+        }
+    }
+
+    pub fn verify_proof_package(&self, proof_package: &ProofPackage) -> bool {
+        let commitment_bytes = proof_package.commitment.into_bigint().to_bytes_le();
+
+        // Verify whether the Issuer actually signed the commitment
+        if self.trusted_issuer_pk
+            .verify(&commitment_bytes, &proof_package.signature)
+            .is_ok()
+        {
+            println!("[Verifier (INTERNAL)]: Valid Commitment Signature!");
+        } else {
+            eprintln!("[Verifier (INTERNAL)]: Invalid Commitment Signature! Aborting...");
+            return false;
+        }
+
+        // Verify whether the ZK proof holds up from public inputs
+        let public_inputs = vec![
+            Fr::from(self.age_threshold),  // Enforce own threshold
+            proof_package.commitment, // Signed commitment
+            proof_package.pk_p,       // Prover's Public Key
+        ];
+
+        // Path to .zkey
+        let zkey_path = "circuits/build/age_gate.zkey".to_string();
+
+        // TODO: Verifier MUST NOT read from a .zkey file -- extract and store only verification key
+        // Read the Proving Key file to extract its inner Verifying Key
+        let file = File::open(&zkey_path).expect("Failed to open zkey file");
+        let mut reader = BufReader::new(file);
+        let (pk, _) = ark_circom::read_zkey(&mut reader).expect("Failed to read zkey");
+
+        // Prepare verifying key for circuit verification
+        let prep_vk = prepare_verifying_key(&pk.vk);
+
+        // Verify the proof with public inputs AND
+        // whether these abide by the rules defined by the Verifying Key
+        if Groth16::<Bn254>::verify_with_processed_vk(&prep_vk, &public_inputs, &proof_package.proof)
+            .unwrap_or(false)
+        {
+            println!("[Verifier (INTERNAL)]: Valid Proof!");
+            return true // Both Signature and Proof are valid
+        } else {
+            eprintln!("[Verifier (INTERNAL)]: Invalid Proof! Aborting...");
+            return false
+        }
     }
 }

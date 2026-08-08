@@ -3809,6 +3809,15 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 [[package]]
 name = "verifier"
 version = "0.1.0"
+dependencies = [
+ "ark-bn254",
+ "ark-circom",
+ "ark-ff",
+ "ark-groth16",
+ "ark-snark",
+ "ed25519-dalek",
+ "types",
+]
 
 [[package]]
 name = "version_check"
@@ -4886,6 +4895,7 @@ dependencies = [
  "issuer",
  "prover",
  "tokio",
+ "verifier",
 ]
 
 [[package]]

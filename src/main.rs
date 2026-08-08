@@ -6,15 +6,7 @@
 
 use issuer::Issuer;
 use prover::Prover;
-use std::fs::File;
-use std::io::BufReader;
-
-// todo: Refactor to verifier
-use ark_bn254::{Bn254, Fr};
-use ark_ff::{BigInteger, PrimeField};
-use ark_groth16::{Groth16, prepare_verifying_key};
-use ark_snark::SNARK;
-use ed25519_dalek::Verifier;
+use verifier::Verifier;
 
 #[tokio::main]
 async fn main() {
@@ -46,51 +38,10 @@ async fn main() {
 
     println!("{:#?}", proof_package);
 
-    // TODO: Refactor following to Verifier crate
+    let verifier = Verifier::new(issuer.get_public_key());
 
-    let commitment_bytes = proof_package.commitment.into_bigint().to_bytes_le();
-    let issuer_pub_key = issuer.get_public_key();
-
-    // Verify whether the Issuer actually signed the commitment
-    if issuer_pub_key
-        .verify(&commitment_bytes, &proof_package.signature)
-        .is_ok()
-    {
-        println!("[Verifier (INTERNAL)]: Valid Commitment Signature!");
-    } else {
-        eprintln!("[Verifier (INTERNAL)]: Invalid Commitment Signature! Aborting...");
-        // return false
-    }
-
-    // Verify whether the ZK proof holds up from public inputs
-    let public_inputs = vec![
-        Fr::from(age_threshold),  // Enforce own threshold
-        proof_package.commitment, // Signed commitment
-        proof_package.pk_p,       // Prover's Public Key
-    ];
-
-    // Path to .zkey
-    let zkey_path = "circuits/build/age_gate.zkey".to_string();
-
-    // TODO: Verifier MUST NOT read from a .zkey file -- extract and store only verification key
-    // Read the Proving Key file to extract its inner Verifying Key
-    let file = File::open(&zkey_path).expect("Failed to open zkey file");
-    let mut reader = BufReader::new(file);
-    let (pk, _) = ark_circom::read_zkey(&mut reader).expect("Failed to read zkey");
-
-    // Prepare verifying key for circuit verification
-    let prep_vk = prepare_verifying_key(&pk.vk);
-
-    // Verify the proof with public inputs AND
-    // whether these abide by the rules defined by the Verifying Key
-    if Groth16::<Bn254>::verify_with_processed_vk(&prep_vk, &public_inputs, &proof_package.proof)
-        .unwrap_or(false)
-    {
-        println!("[Verifier (INTERNAL)]: Valid Proof!");
-    } else {
-        eprintln!("[Verifier (INTERNAL)]: Invalid Proof! Aborting...");
-        // return false
-    }
+    let is_valid = verifier.verify_proof_package(&proof_package);
+    println!("Proof valid: {}", is_valid);
 
     // TODO: return access granted back to prover
 }

@@ -7,9 +7,10 @@ edition = "2024"
 
 issuer = { workspace = true }
 prover = { workspace = true }
+verifier = { workspace = true }
 
 tokio = "1.53.1"
-ed25519-dalek = "3.0.0"
+ed25519-dalek = { workspace = true }
 
 # ARK
 ark-bn254 = { workspace = true }
@@ -35,8 +36,10 @@ members = [
 types = { path = "crates/types" }
 issuer = { path = "crates/issuer" }
 prover = { path = "crates/prover" }
+verifier = { path = "crates/verifier" }
 
 ark-bn254 = "0.5.0"
 ark-ff = "0.5.0"
 ark-groth16 = "0.5.0"
 ark-snark = "0.5.0"
+ed25519-dalek = "3.0.0"
