@@ -20,13 +20,18 @@ pub struct Verifier {
 
 impl Verifier {
     /// Instantiate a new Verifier
-    pub fn new(trusted_issuer_pk: VerifyingKey) -> Self {
+    pub fn new(age_threshold: u8, trusted_issuer_pk: VerifyingKey) -> Self {
         println!("[Verifier (INTERNAL)] Initalising...");
 
         Self {
-            age_threshold: 18, // dummy threshold
+            age_threshold,
             trusted_issuer_pk
         }
+    }
+
+    /// Getter for age threshold (for Prover)
+    pub fn get_age_threshold(&self) -> u8 {
+        self.age_threshold
     }
 
     pub fn verify_proof_package(&self, proof_package: &ProofPackage) -> bool {

@@ -29,16 +29,18 @@ async fn main() {
     // Trust Boundary - Issuer sends CredentialPackage to Prover
     prover.receive_credential_package(credential_package);
 
-    // dummy threshold TODO: Verifier communicates the threshold
-    let age_threshold = 18;
+    // Initialise Verifier with age threshold
+    let verifier = Verifier::new(20, issuer.get_public_key());
 
+    let age_threshold = verifier.get_age_threshold();
+    println!("[Protocol Coordinator] Verifier Request for age >= {}", age_threshold);
+
+    // Prover generates proof that meets age_threshold
     let proof_package = prover.generate_proof_package(age_threshold);
 
     println!("[Protocol Coordinator] Routing Proof Package to Verifier...");
 
     println!("{:#?}", proof_package);
-
-    let verifier = Verifier::new(issuer.get_public_key());
 
     let is_valid = verifier.verify_proof_package(&proof_package);
     println!("Proof valid: {}", is_valid);
