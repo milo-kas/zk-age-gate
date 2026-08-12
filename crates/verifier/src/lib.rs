@@ -1,6 +1,6 @@
 //! Defines the Verifier Actor
 
-use types::ProofPackage;
+use types::{colored::Colorize, verifier_log, ProofPackage};
 
 use std::fs::File;
 use std::io::BufReader;
@@ -21,7 +21,7 @@ pub struct Verifier {
 impl Verifier {
     /// Instantiate a new Verifier
     pub fn new(age_threshold: u8, trusted_issuer_pk: VerifyingKey) -> Self {
-        println!("[Verifier (INTERNAL)] Initalising...");
+        verifier_log!("Initalising...");
 
         Self {
             age_threshold,
@@ -42,7 +42,7 @@ impl Verifier {
             .verify(&commitment_bytes, &proof_package.signature)
             .is_ok()
         {
-            println!("[Verifier (INTERNAL)]: Valid Commitment Signature!");
+            verifier_log!("Valid Commitment Signature!");
         } else {
             eprintln!("[Verifier (INTERNAL)]: Invalid Commitment Signature! Aborting...");
             return false;
@@ -72,7 +72,7 @@ impl Verifier {
         if Groth16::<Bn254>::verify_with_processed_vk(&prep_vk, &public_inputs, &proof_package.proof)
             .unwrap_or(false)
         {
-            println!("[Verifier (INTERNAL)]: Valid Proof!");
+            verifier_log!("Valid Proof!");
             return true // Both Signature and Proof are valid
         } else {
             eprintln!("[Verifier (INTERNAL)]: Invalid Proof! Aborting...");

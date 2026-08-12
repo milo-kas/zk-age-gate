@@ -1,6 +1,6 @@
 //! Defines the Prover Actor
 
-use types::{AgeRequest, CredentialPackage, ProofPackage};
+use types::{colored::Colorize, prover_log, AgeRequest, CredentialPackage, ProofPackage};
 
 // ARK & Prover Frameworks
 use ark_bn254::{Bn254, Fr};
@@ -47,7 +47,7 @@ pub struct Prover {
 impl Prover {
     /// Instantiate a new Prover
     pub fn new() -> Self {
-        println!("[Prover (INTERNAL)] Initalising...");
+        prover_log!("Initalising...");
 
         let mut csprng = UnwrapErr(SysRng);
         Self {
@@ -58,7 +58,7 @@ impl Prover {
 
     /// Package the Age Request for the Issuer
     pub fn create_age_request(&self, id: &str) -> AgeRequest {
-        println!("[Prover (INTERNAL)] Packaging AgeRequest...");
+        prover_log!("Packaging AgeRequest...");
 
         let age_request = AgeRequest {
             pk_p: self.pk_p,
@@ -70,12 +70,9 @@ impl Prover {
 
     /// Take the Credential Package issued from the Issuer
     pub fn receive_credential_package(&mut self, package: CredentialPackage) {
-        println!("[Prover (INTERNAL)] Credential Package received!");
-        println!("[Prover (INTERNAL)] Storing Credential Package ...");
+        prover_log!("Credential Package received!");
+        prover_log!("Storing Credential Package ...");
         self.credential_package = Some(package);
-
-        println!("[Prover (INTERNAL):");
-        println!("{:#?}", self.credential_package);
     }
 
     /// Generate Proof Package (with native C++) for the Verifier
@@ -85,7 +82,7 @@ impl Prover {
             .as_ref()
             .expect("Credential Package not found");
 
-        println!("[Prover (INTERNAL)] Formatting inputs for native C++ witness generation...");
+        prover_log!("Formatting inputs for native C++ witness generation...");
 
         // Format field elements as precise base-10 strings
         let salt_str = credential_package.salt.to_base10_string();
@@ -114,9 +111,7 @@ impl Prover {
         // Path to .zkey
         let zkey_path = "circuits/build/age_gate.zkey".to_string();
 
-        println!(
-            "[Prover (INTERNAL)] Executing native C++ witness and calculating Groth16 proof..."
-        );
+        prover_log!("Executing native C++ witness and calculating Groth16 proof...");
 
         // Circom wrapper
         let circom_proof = CircomProver::prove(
@@ -134,7 +129,7 @@ impl Prover {
         // Extract the specific Arkworks Bn254 proof from the generic Circom proof
         let proof: ark_groth16::Proof<Bn254> = circom_proof.proof.into();
 
-        println!("[Prover (INTERNAL)] Generated Proof!");
+        prover_log!("Generated Proof!");
 
         // Construct and return the final ProofPackage
         // threshold_age is not packaged as the Verifier uses their own known threshold

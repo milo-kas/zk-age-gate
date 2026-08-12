@@ -9,7 +9,7 @@ use getrandom::{
 };
 use light_poseidon::{Poseidon, PoseidonHasher};
 
-use types::{AgeRequest, CredentialPackage};
+use types::{colored::Colorize, issuer_log, AgeRequest, CredentialPackage};
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)
 pub struct Issuer {
@@ -20,7 +20,7 @@ pub struct Issuer {
 impl Issuer {
     /// Initialise the Issuer with a newly generated Ed25519 keypair
     pub fn new() -> Self {
-        println!("[Issuer (INTERNAL)] Initalising...");
+        issuer_log!("Initalising...");
 
         // Guarantee that the provided entropy is from the OS and not a fallback
         let mut csprng = UnwrapErr(SysRng);
@@ -39,7 +39,7 @@ impl Issuer {
         let mut csprng = UnwrapErr(SysRng);
 
         // Simulate reading the ID to determine age -- PoC only
-        println!("[Issuer (INTERNAL)] Verifying ID: {}...", request.id);
+        issuer_log!("Verifying ID: {}...", request.id);
         let age: u8 = 20; // dummy age TODO: make it random as per demo using the ID as entropy
 
         // Generate secure random salt and wrap to BN254 field format
@@ -60,7 +60,7 @@ impl Issuer {
         let commitment_bytes = commitment.into_bigint().to_bytes_le();
         let signature: Signature = self.signing_key.sign(&commitment_bytes);
 
-        println!("[Issuer (INTERNAL)] Packaging credentials...");
+        issuer_log!("Packaging credentials...");
 
         // Package the credentials.
         CredentialPackage {

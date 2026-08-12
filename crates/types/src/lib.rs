@@ -36,3 +36,39 @@ pub struct ProofPackage {
     // Proof
     pub proof: Proof<Bn254>,
 }
+
+
+// Log format with colours for each Actor
+pub use colored;
+
+/// Global Protocol Coordinator
+#[macro_export]
+macro_rules! coord_log {
+    ($($arg:tt)*) => {
+        println!("{}", format!("[Protocol Coordinator] {}", format_args!($($arg)*)).white().bold());
+    };
+}
+
+/// Global Issuer
+#[macro_export]
+macro_rules! issuer_log {
+    ($($arg:tt)*) => {
+        println!("{}", format!("[Issuer (INTERNAL)] {}", format_args!($($arg)*)).magenta());
+    };
+}
+
+/// Global Prover
+#[macro_export]
+macro_rules! prover_log {
+    ($($arg:tt)*) => {
+        println!("{}", format!("[Prover (INTERNAL)] {}", format_args!($($arg)*)).blue());
+    };
+}
+
+/// Global Verifier
+#[macro_export]
+macro_rules! verifier_log {
+    ($($arg:tt)*) => {
+        println!("{}", format!("[Verifier (INTERNAL)] {}", format_args!($($arg)*)).yellow());
+    };
+}

@@ -9,6 +9,10 @@ issuer = { workspace = true }
 prover = { workspace = true }
 verifier = { workspace = true }
 
+types = { workspace = true }
+
+colored = { workspace = true }
+
 tokio = "1.53.1"
 ed25519-dalek = { workspace = true }
 
@@ -43,3 +47,5 @@ ark-ff = "0.5.0"
 ark-groth16 = "0.5.0"
 ark-snark = "0.5.0"
 ed25519-dalek = "3.0.0"
+
+colored = "3.1.1"

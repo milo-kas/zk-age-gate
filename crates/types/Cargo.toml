@@ -7,3 +7,5 @@ edition = "2024"
 ark-bn254 = "0.5.0"
 ark-groth16 = "0.5.0"
 ed25519-dalek = "3.0.0"
+
+colored = { workspace = true }
