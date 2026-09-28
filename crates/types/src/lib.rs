@@ -37,7 +37,6 @@ pub struct ProofPackage {
     pub proof: Proof<Bn254>,
 }
 
-
 // Log format with colours for each Actor
 pub use colored;
 

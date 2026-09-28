@@ -1,6 +1,6 @@
 //! Defines the Verifier Actor
 
-use types::{colored::Colorize, verifier_log, ProofPackage};
+use types::{ProofPackage, colored::Colorize, verifier_log};
 
 use std::fs::File;
 use std::io::BufReader;
@@ -21,7 +21,7 @@ use getrandom::{
 pub struct Verifier {
     age_threshold: u8,
     trusted_issuer_pk: VerifyingKey,
-    current_nonce: Option<u64>
+    current_nonce: Option<u64>,
 }
 
 impl Verifier {
@@ -32,13 +32,16 @@ impl Verifier {
         Self {
             age_threshold,
             trusted_issuer_pk,
-            current_nonce: None
+            current_nonce: None,
         }
     }
 
     /// Getter for age threshold policy (for Prover)
     pub fn get_age_policy(&self) -> u8 {
-        verifier_log!("Providing age requirement policy: age >= {}...", self.age_threshold);
+        verifier_log!(
+            "Providing age requirement policy: age >= {}...",
+            self.age_threshold
+        );
         self.age_threshold
     }
 
@@ -66,7 +69,8 @@ impl Verifier {
         let commitment_bytes = proof_package.commitment.into_bigint().to_bytes_le();
 
         // Verify whether the Issuer actually signed the commitment
-        if self.trusted_issuer_pk
+        if self
+            .trusted_issuer_pk
             .verify(&commitment_bytes, &proof_package.signature)
             .is_ok()
         {
@@ -78,9 +82,9 @@ impl Verifier {
 
         // Verify whether the ZK proof holds up from public inputs
         let public_inputs = vec![
-            Fr::from(self.age_threshold),  // Enforce own threshold
-            proof_package.commitment, // Signed commitment
-            proof_package.pk_p,       // Prover's Public Key
+            Fr::from(self.age_threshold), // Enforce own threshold
+            proof_package.commitment,     // Signed commitment
+            proof_package.pk_p,           // Prover's Public Key
             Fr::from(nonce),
         ];
 
@@ -98,14 +102,18 @@ impl Verifier {
 
         // Verify the proof with public inputs AND
         // whether these abide by the rules defined by the Verifying Key
-        if Groth16::<Bn254>::verify_with_processed_vk(&prep_vk, &public_inputs, &proof_package.proof)
-            .unwrap_or(false)
+        if Groth16::<Bn254>::verify_with_processed_vk(
+            &prep_vk,
+            &public_inputs,
+            &proof_package.proof,
+        )
+        .unwrap_or(false)
         {
             verifier_log!("Valid Proof!");
-            return true // Both Signature and Proof are valid
+            true // Both Signature and Proof are valid
         } else {
             eprintln!("[Verifier (INTERNAL)]: Invalid Proof! Aborting...");
-            return false
+            false
         }
     }
 }

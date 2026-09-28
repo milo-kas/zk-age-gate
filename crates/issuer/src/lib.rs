@@ -9,7 +9,7 @@ use getrandom::{
 };
 use light_poseidon::{Poseidon, PoseidonHasher};
 
-use types::{colored::Colorize, issuer_log, AgeRequest, CredentialPackage};
+use types::{AgeRequest, CredentialPackage, colored::Colorize, issuer_log};
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)
 pub struct Issuer {

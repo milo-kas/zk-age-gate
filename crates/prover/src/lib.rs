@@ -1,6 +1,6 @@
 //! Defines the Prover Actor
 
-use types::{colored::Colorize, prover_log, AgeRequest, CredentialPackage, ProofPackage};
+use types::{AgeRequest, CredentialPackage, ProofPackage, colored::Colorize, prover_log};
 
 // ARK & Prover Frameworks
 use ark_bn254::{Bn254, Fr};
@@ -92,7 +92,7 @@ impl Prover {
         // Ages naturally convert to string
         let age_str = credential_package.age.to_string();
         let threshold_age_str = age_threshold.to_string();
-        
+
         let nonce_str = nonce.to_string();
 
         // HashMap inputs matching Circom circuit signal schema
