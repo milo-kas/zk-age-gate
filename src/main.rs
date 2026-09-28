@@ -34,8 +34,8 @@ async fn main() {
     // Initialise Verifier with age threshold
     let verifier = Verifier::new(20, issuer.get_public_key());
 
-    let age_threshold = verifier.get_age_threshold();
-    coord_log!("Verifier Request for age >= {}", age_threshold);
+    let age_threshold = verifier.get_age_policy();
+    coord_log!("Routing age policy to Prover...");
 
     // Prover generates proof that meets age_threshold
     let proof_package = prover.generate_proof_package(age_threshold);

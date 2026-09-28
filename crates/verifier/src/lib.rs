@@ -29,8 +29,9 @@ impl Verifier {
         }
     }
 
-    /// Getter for age threshold (for Prover)
-    pub fn get_age_threshold(&self) -> u8 {
+    /// Getter for age threshold policy (for Prover)
+    pub fn get_age_policy(&self) -> u8 {
+        verifier_log!("Providing age requirement policy: age >= {}...", self.age_threshold);
         self.age_threshold
     }
 
