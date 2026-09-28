@@ -80,6 +80,11 @@ template AgeCommitmentGate() {
     signal input issuerCommitment;
     signal input pk_p;
 
+    // Nonce (prevent replay attacks)
+    signal input nonce;
+    signal satisfyCompiler;
+    satisfyCompiler <== nonce * nonce;
+
     // private inputs
     signal input providedAge;
     signal input providedSalt;
@@ -102,4 +107,4 @@ template AgeCommitmentGate() {
 }
 
 // Run main age gate circuit with commitment and age binding.
-component main {public [thresholdAge, issuerCommitment, pk_p]} = AgeCommitmentGate();
+component main {public [thresholdAge, issuerCommitment, pk_p, nonce]} = AgeCommitmentGate();

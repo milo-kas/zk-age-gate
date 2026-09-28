@@ -12,10 +12,16 @@ use ark_snark::SNARK;
 // Signature
 use ed25519_dalek::{Verifier as _, VerifyingKey};
 
+use getrandom::{
+    SysRng,
+    rand_core::{Rng, UnwrapErr},
+};
+
 /// Verifier acts as the relaying-party checking the proof
 pub struct Verifier {
     age_threshold: u8,
-    trusted_issuer_pk: VerifyingKey
+    trusted_issuer_pk: VerifyingKey,
+    current_nonce: Option<u64>
 }
 
 impl Verifier {
@@ -25,7 +31,8 @@ impl Verifier {
 
         Self {
             age_threshold,
-            trusted_issuer_pk
+            trusted_issuer_pk,
+            current_nonce: None
         }
     }
 
@@ -35,7 +42,27 @@ impl Verifier {
         self.age_threshold
     }
 
-    pub fn verify_proof_package(&self, proof_package: &ProofPackage) -> bool {
+    /// Generate a nonce for the next proof package
+    pub fn issue_nonce(&mut self) -> u64 {
+        let mut csprng = UnwrapErr(SysRng);
+        let nonce = csprng.next_u64();
+
+        self.current_nonce = Some(nonce);
+        verifier_log!("Issued nonce: {}", nonce);
+
+        nonce
+    }
+
+    pub fn verify_proof_package(&mut self, proof_package: &ProofPackage) -> bool {
+        // Enforce active nonce and consume it immediately
+        let nonce = match self.current_nonce.take() {
+            Some(c) => c,
+            None => {
+                eprintln!("[Verifier (INTERNAL)]: No active nonce found! Aborting...");
+                return false;
+            }
+        };
+
         let commitment_bytes = proof_package.commitment.into_bigint().to_bytes_le();
 
         // Verify whether the Issuer actually signed the commitment
@@ -54,6 +81,7 @@ impl Verifier {
             Fr::from(self.age_threshold),  // Enforce own threshold
             proof_package.commitment, // Signed commitment
             proof_package.pk_p,       // Prover's Public Key
+            Fr::from(nonce),
         ];
 
         // Path to .zkey

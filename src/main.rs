@@ -32,13 +32,14 @@ async fn main() {
     prover.receive_credential_package(credential_package);
 
     // Initialise Verifier with age threshold
-    let verifier = Verifier::new(20, issuer.get_public_key());
+    let mut verifier = Verifier::new(20, issuer.get_public_key());
 
     let age_threshold = verifier.get_age_policy();
-    coord_log!("Routing age policy to Prover...");
+    let nonce = verifier.issue_nonce();
+    coord_log!("Routing age policy & nonce to Prover...");
 
     // Prover generates proof that meets age_threshold
-    let proof_package = prover.generate_proof_package(age_threshold);
+    let proof_package = prover.generate_proof_package(age_threshold, nonce);
 
     coord_log!("Routing Proof Package to Verifier...");
 

@@ -16,3 +16,4 @@ ark-circom = { version = "0.5.0", default-features = false }
 
 # signature
 ed25519-dalek = { workspace = true }
+getrandom = { version = "0.4.3", features = ["sys_rng"] }

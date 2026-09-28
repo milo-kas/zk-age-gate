@@ -76,7 +76,7 @@ impl Prover {
     }
 
     /// Generate Proof Package (with native C++) for the Verifier
-    pub fn generate_proof_package(&self, age_threshold: u8) -> ProofPackage {
+    pub fn generate_proof_package(&self, age_threshold: u8, nonce: u64) -> ProofPackage {
         let credential_package = self
             .credential_package
             .as_ref()
@@ -92,6 +92,8 @@ impl Prover {
         // Ages naturally convert to string
         let age_str = credential_package.age.to_string();
         let threshold_age_str = age_threshold.to_string();
+        
+        let nonce_str = nonce.to_string();
 
         // HashMap inputs matching Circom circuit signal schema
         let inputs = HashMap::from([
@@ -102,6 +104,7 @@ impl Prover {
             ("thresholdAge".to_string(), vec![threshold_age_str]),
             ("issuerCommitment".to_string(), vec![comm_str]),
             ("pk_p".to_string(), vec![pk_str]),
+            ("nonce".to_string(), vec![nonce_str]),
         ]);
 
         // Serialise to JSON object

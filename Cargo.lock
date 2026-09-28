@@ -3826,6 +3826,7 @@ dependencies = [
  "ark-groth16",
  "ark-snark",
  "ed25519-dalek",
+ "getrandom 0.4.3",
  "types",
 ]
 
