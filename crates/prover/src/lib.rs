@@ -1,6 +1,6 @@
 //! Defines the Prover Actor
 
-use types::{AgeRequest, CredentialPackage, ProofPackage, colored::Colorize, prover_log};
+use types::{colored::Colorize, prover_log, AccessStatus, AgeRequest, CredentialPackage, ProofPackage};
 
 // ARK & Prover Frameworks
 use ark_bn254::{Bn254, Fr};
@@ -144,5 +144,10 @@ impl Prover {
         };
 
         proof_package
+    }
+
+    /// Receive status from Verifier
+    pub fn receive_access_decision(&mut self, status: AccessStatus) {
+        prover_log!("Received Access Decision: {:?}", status);
     }
 }

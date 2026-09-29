@@ -45,8 +45,10 @@ async fn main() {
 
     println!("{:#?}", proof_package);
 
-    let is_valid = verifier.verify_proof_package(&proof_package);
-    coord_log!("Proof valid: {}", is_valid);
+    let access_decision = verifier.verify_proof_package(&proof_package);
 
-    // TODO: return access granted back to prover
+    // Return access decision back to Prover
+    coord_log!("Routing Proof Validity to Prover...");
+    prover.receive_access_decision(access_decision);
+
 }

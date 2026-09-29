@@ -1,6 +1,6 @@
 //! Defines the Verifier Actor
 
-use types::{ProofPackage, colored::Colorize, verifier_log};
+use types::{colored::Colorize, verifier_log, AccessStatus, ProofPackage};
 
 use std::fs::File;
 use std::io::BufReader;
@@ -16,6 +16,7 @@ use getrandom::{
     SysRng,
     rand_core::{Rng, UnwrapErr},
 };
+use types::AccessStatus::{Granted, Denied};
 
 /// Verifier acts as the relaying-party checking the proof
 pub struct Verifier {
@@ -56,13 +57,13 @@ impl Verifier {
         nonce
     }
 
-    pub fn verify_proof_package(&mut self, proof_package: &ProofPackage) -> bool {
+    pub fn verify_proof_package(&mut self, proof_package: &ProofPackage) -> AccessStatus {
         // Enforce active nonce and consume it immediately
         let nonce = match self.current_nonce.take() {
             Some(c) => c,
             None => {
-                eprintln!("[Verifier (INTERNAL)]: No active nonce found! Aborting...");
-                return false;
+                eprintln!("[Verifier (INTERNAL)] No active nonce found! Aborting...");
+                return Denied;
             }
         };
 
@@ -76,8 +77,8 @@ impl Verifier {
         {
             verifier_log!("Valid Commitment Signature!");
         } else {
-            eprintln!("[Verifier (INTERNAL)]: Invalid Commitment Signature! Aborting...");
-            return false;
+            eprintln!("[Verifier (INTERNAL)] Invalid Commitment Signature! Aborting...");
+            return Denied;
         }
 
         // Verify whether the ZK proof holds up from public inputs
@@ -110,10 +111,10 @@ impl Verifier {
         .unwrap_or(false)
         {
             verifier_log!("Valid Proof!");
-            true // Both Signature and Proof are valid
+            Granted // Both Signature and Proof are valid
         } else {
-            eprintln!("[Verifier (INTERNAL)]: Invalid Proof! Aborting...");
-            false
+            eprintln!("[Verifier (INTERNAL)] Invalid Proof! Aborting...");
+            Denied
         }
     }
 }

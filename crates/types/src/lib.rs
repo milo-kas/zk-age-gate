@@ -37,6 +37,13 @@ pub struct ProofPackage {
     pub proof: Proof<Bn254>,
 }
 
+/// Verifier to Prover status update
+#[derive(Clone, Debug)]
+pub enum AccessStatus {
+    Granted,
+    Denied
+}
+
 // Log format with colours for each Actor
 pub use colored;
 
