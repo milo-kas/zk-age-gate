@@ -1,0 +1,15 @@
+services:
+  zk-env:
+    build: .
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      - CARGO_TARGET_DIR=/tmp/cargo-target
+      - CARGO_HOME=/tmp/cargo-home
+    volumes:
+      - ./:/workspace
+      - cargo-target:/tmp/cargo-target
+      - cargo-home:/tmp/cargo-home
+
+volumes:
+  cargo-target:
+  cargo-home:
