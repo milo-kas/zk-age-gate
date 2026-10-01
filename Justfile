@@ -31,4 +31,4 @@ test:
     cargo test
 
 # Setup
-setup: gen-ptau compile-circuit setup-zkey run
+setup: gen-ptau compile-circuit setup-zkey build

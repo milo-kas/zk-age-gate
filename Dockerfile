@@ -18,7 +18,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
  && rm -rf /var/lib/apt/lists/*
 
 # Pinned Circom compiler (Guarantees deterministic R1CS output)
-ARG CIRCOM_VERSION=v2.1.8
+ARG CIRCOM_VERSION=v2.2.3
 RUN git clone --depth 1 --branch ${CIRCOM_VERSION} https://github.com/iden3/circom.git /tmp/circom \
  && cd /tmp/circom \
  && cargo build --release \
