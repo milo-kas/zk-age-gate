@@ -28,7 +28,7 @@ pub struct Verifier {
 impl Verifier {
     /// Instantiate a new Verifier
     pub fn new(age_threshold: u8, trusted_issuer_pk: VerifyingKey) -> Self {
-        verifier_log!("Initalising...");
+        verifier_log!("Initialising...");
 
         Self {
             age_threshold,

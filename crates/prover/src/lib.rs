@@ -47,7 +47,7 @@ pub struct Prover {
 impl Prover {
     /// Instantiate a new Prover
     pub fn new() -> Self {
-        prover_log!("Initalising...");
+        prover_log!("Initialising...");
 
         let mut csprng = UnwrapErr(SysRng);
         Self {

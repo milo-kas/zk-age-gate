@@ -20,7 +20,7 @@ pub struct Issuer {
 impl Issuer {
     /// Initialise the Issuer with a newly generated Ed25519 keypair
     pub fn new() -> Self {
-        issuer_log!("Initalising...");
+        issuer_log!("Initialising...");
 
         // Guarantee that the provided entropy is from the OS and not a fallback
         let mut csprng = UnwrapErr(SysRng);
