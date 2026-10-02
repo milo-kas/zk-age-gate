@@ -8,25 +8,30 @@ use getrandom::{
     rand_core::{Rng, UnwrapErr},
 };
 use light_poseidon::{Poseidon, PoseidonHasher};
+use std::collections::HashMap;
 
-use types::{AgeRequest, CredentialPackage, colored::Colorize, issuer_log};
+use types::{AgeRequest, CredentialPackage, IssuerError, colored::Colorize, issuer_log};
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)
 pub struct Issuer {
     /// Private key used to sign age commitment
     signing_key: SigningKey,
+    identity_records: HashMap<String, u8>,
 }
 
 impl Issuer {
     /// Initialise the Issuer with a newly generated Ed25519 keypair
-    pub fn new() -> Self {
+    pub fn new(identity_records: HashMap<String, u8>) -> Self {
         issuer_log!("Initialising...");
 
         // Guarantee that the provided entropy is from the OS and not a fallback
         let mut csprng = UnwrapErr(SysRng);
         // Generate keypair
         let signing_key = SigningKey::generate(&mut csprng);
-        Self { signing_key }
+        Self {
+            signing_key,
+            identity_records,
+        }
     }
 
     /// Public key getter, allows Verifier to validate signature in the ProofPackage
@@ -35,12 +40,15 @@ impl Issuer {
     }
 
     /// Process Prover's ID and issue the Credential Package incl. the Signed Commitment
-    pub fn issue_credential(&self, request: AgeRequest) -> CredentialPackage {
+    pub fn issue_credential(&self, request: AgeRequest) -> Result<CredentialPackage, IssuerError> {
         let mut csprng = UnwrapErr(SysRng);
 
-        // Simulate reading the ID to determine age -- PoC only
+        // Fetch the age associated with ID
         issuer_log!("Verifying ID: {}...", request.id);
-        let age: u8 = 20; // dummy age TODO: make it random as per demo using the ID as entropy
+        let age = match self.identity_records.get(&request.id) {
+            Some(age) => *age,
+            None => return Err(IssuerError::IdNotFound(request.id)),
+        };
 
         // Generate secure random salt and wrap to BN254 field format
         let salt = Fr::from(csprng.next_u64());
@@ -63,17 +71,17 @@ impl Issuer {
         issuer_log!("Packaging credentials...");
 
         // Package the credentials.
-        CredentialPackage {
+        Ok(CredentialPackage {
             age,
             salt,
             commitment,
             signature,
-        }
+        })
     }
 }
 
 impl Default for Issuer {
     fn default() -> Self {
-        Self::new()
+        Self::new(HashMap::new())
     }
 }

@@ -4905,6 +4905,7 @@ dependencies = [
  "colored",
  "ed25519-dalek",
  "issuer",
+ "log",
  "prover",
  "tokio",
  "types",
