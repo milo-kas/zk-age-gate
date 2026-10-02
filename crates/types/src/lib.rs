@@ -27,7 +27,7 @@ pub struct CredentialPackage {
 /// Credential Package Error
 #[derive(Clone, Debug)]
 pub enum IssuerError {
-    IdNotFound(String)
+    IdNotFound(String),
 }
 
 /// Prover to Verifier payload structure
@@ -44,7 +44,7 @@ pub struct ProofPackage {
 }
 
 /// Verifier to Prover status update
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum AccessStatus {
     Granted,
     Denied,
