@@ -44,30 +44,31 @@ pub struct Prover {
     // Private storage (prover key and credential package)
     pk_p: Fr,
     credential_package: Option<CredentialPackage>,
+
+    id: String,
 }
 
 impl Prover {
     /// Instantiate a new Prover
-    pub fn new() -> Self {
+    pub fn new(id: String) -> Self {
         prover_log!("Initialising...");
 
         let mut csprng = UnwrapErr(SysRng);
         Self {
             pk_p: Fr::from(csprng.next_u64()),
             credential_package: None,
+            id
         }
     }
 
     /// Package the Age Request for the Issuer
-    pub fn create_age_request(&self, id: &str) -> AgeRequest {
+    pub fn create_age_request(&self) -> AgeRequest {
         prover_log!("Packaging AgeRequest...");
 
-        let age_request = AgeRequest {
+        AgeRequest {
             pk_p: self.pk_p,
-            id: id.to_string(),
-        };
-
-        age_request
+            id: self.id.clone(),
+        }
     }
 
     /// Take the Credential Package issued from the Issuer

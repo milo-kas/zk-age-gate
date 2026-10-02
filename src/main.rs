@@ -17,10 +17,12 @@ async fn main() {
 
     // Initialise Isolated Actors
     let issuer = Issuer::new(setup_identity_records());
-    let mut prover = Prover::new();
+    let mut prover = Prover::new(
+        String::from("SOME_ID")
+    );
 
     // Prover packages the age request ready for the trusted Issuer
-    let age_request = prover.create_age_request("SOME_ID"); // TODO: randomise the ID
+    let age_request = prover.create_age_request(); // TODO: randomise the ID
 
     coord_log!("Routing Age Request to Issuer...");
 
