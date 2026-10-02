@@ -24,6 +24,12 @@ pub struct CredentialPackage {
     pub signature: Signature,
 }
 
+/// Credential Package Error
+#[derive(Clone, Debug)]
+pub enum IssuerError {
+    IdNotFound(String)
+}
+
 /// Prover to Verifier payload structure
 #[derive(Clone, Debug)]
 pub struct ProofPackage {
@@ -41,7 +47,7 @@ pub struct ProofPackage {
 #[derive(Clone, Debug)]
 pub enum AccessStatus {
     Granted,
-    Denied
+    Denied,
 }
 
 // Log format with colours for each Actor

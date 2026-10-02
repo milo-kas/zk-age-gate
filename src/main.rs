@@ -6,6 +6,7 @@
 
 use issuer::Issuer;
 use prover::Prover;
+use std::collections::HashMap;
 use verifier::Verifier;
 
 use types::{colored::Colorize, coord_log};
@@ -15,7 +16,7 @@ async fn main() {
     coord_log!("Starting protocol demo...");
 
     // Initialise Isolated Actors
-    let issuer = Issuer::new();
+    let issuer = Issuer::new(setup_identity_records());
     let mut prover = Prover::new();
 
     // Prover packages the age request ready for the trusted Issuer
@@ -24,7 +25,9 @@ async fn main() {
     coord_log!("Routing Age Request to Issuer...");
 
     // Trust Boundary - Prover requests CredentialPackage from Issuer
-    let credential_package = issuer.issue_credential(age_request);
+    let credential_package = issuer
+        .issue_credential(age_request)
+        .expect("Failed to issue credential package:");
 
     coord_log!("Routing Credential Package to Prover...");
 
@@ -50,5 +53,11 @@ async fn main() {
     // Return access decision back to Prover
     coord_log!("Routing Proof Validity to Prover...");
     prover.receive_access_decision(access_decision);
+}
 
+fn setup_identity_records() -> HashMap<String, u8> {
+    let mut identity_records = HashMap::new();
+    identity_records.insert("SOME_ID".to_string(), 25);
+
+    identity_records
 }

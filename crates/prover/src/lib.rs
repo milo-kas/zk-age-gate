@@ -1,6 +1,8 @@
 //! Defines the Prover Actor
 
-use types::{colored::Colorize, prover_log, AccessStatus, AgeRequest, CredentialPackage, ProofPackage};
+use types::{
+    AccessStatus, AgeRequest, CredentialPackage, ProofPackage, colored::Colorize, prover_log,
+};
 
 // ARK & Prover Frameworks
 use ark_bn254::{Bn254, Fr};

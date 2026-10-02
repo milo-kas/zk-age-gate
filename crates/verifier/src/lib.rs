@@ -1,6 +1,6 @@
 //! Defines the Verifier Actor
 
-use types::{colored::Colorize, verifier_log, AccessStatus, ProofPackage};
+use types::{AccessStatus, ProofPackage, colored::Colorize, verifier_log};
 
 use std::fs::File;
 use std::io::BufReader;
@@ -16,7 +16,7 @@ use getrandom::{
     SysRng,
     rand_core::{Rng, UnwrapErr},
 };
-use types::AccessStatus::{Granted, Denied};
+use types::AccessStatus::{Denied, Granted};
 
 /// Verifier acts as the relaying-party checking the proof
 pub struct Verifier {
