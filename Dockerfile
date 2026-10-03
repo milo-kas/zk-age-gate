@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
+# Add clippy
+RUN rustup component add clippy rustfmt
+
 # Node.js & SnarkJS
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
  && apt-get install -y --no-install-recommends nodejs \
