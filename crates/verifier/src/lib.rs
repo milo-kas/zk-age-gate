@@ -85,7 +85,7 @@ impl Verifier {
         let public_inputs = vec![
             Fr::from(self.age_threshold), // Enforce own threshold
             proof_package.commitment,     // Signed commitment
-            proof_package.pk_p,           // Prover's Public Key
+            proof_package.pk_p,           // Prover's public key (pk)
             Fr::from(nonce),
         ];
 
@@ -96,10 +96,10 @@ impl Verifier {
         // Read the Proving Key file to extract its inner Verifying Key
         let file = File::open(&zkey_path).expect("Failed to open zkey file");
         let mut reader = BufReader::new(file);
-        let (pk, _) = ark_circom::read_zkey(&mut reader).expect("Failed to read zkey");
+        let (proving_key, _) = ark_circom::read_zkey(&mut reader).expect("Failed to read zkey");
 
         // Prepare verifying key for circuit verification
-        let prep_vk = prepare_verifying_key(&pk.vk);
+        let prep_vk = prepare_verifying_key(&proving_key.vk);
 
         // Verify the proof with public inputs AND
         // whether these abide by the rules defined by the Verifying Key

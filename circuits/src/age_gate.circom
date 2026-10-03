@@ -69,7 +69,7 @@ template AgeCommitmentGate() {
 
     Public inputs:
     thresholdAge, issuerCommitment
-    pk_p -- Prover's public key
+    pk_p -- Prover's public key (pk)
 
     Private inputs:
     providedSalt, providedAge

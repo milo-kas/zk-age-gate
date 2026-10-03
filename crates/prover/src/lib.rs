@@ -39,12 +39,14 @@ impl FrExt for Fr {
 
 // TODO: verifier sends age threshold request
 
-/// Prover acts as the end-user proving their age is above a given threshold
+/// Prover acts as the end-user proving their age is above a given threshold.
+///
+/// Encapsulates local state storage required to request credentials and generate proofs.
 pub struct Prover {
-    // Private storage (prover key and credential package)
+    /// Prover public key (pk_p)
     pk_p: Fr,
-    credential_package: Option<CredentialPackage>,
 
+    credential_package: Option<CredentialPackage>,
     id: String,
 }
 

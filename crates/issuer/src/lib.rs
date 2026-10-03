@@ -14,7 +14,7 @@ use types::{AgeRequest, CredentialPackage, IssuerError, colored::Colorize, issue
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)
 pub struct Issuer {
-    /// Private key used to sign age commitment
+    /// Secret key used to sign age commitment
     signing_key: SigningKey,
     identity_records: HashMap<String, u8>,
 }
@@ -26,7 +26,7 @@ impl Issuer {
 
         // Guarantee that the provided entropy is from the OS and not a fallback
         let mut csprng = UnwrapErr(SysRng);
-        // Generate keypair
+        // Generate keypair (secret signing key and public verifying key)
         let signing_key = SigningKey::generate(&mut csprng);
         Self {
             signing_key,
@@ -57,8 +57,8 @@ impl Issuer {
         // Create hasher
         let mut hasher = Poseidon::<Fr>::new_circom(3).expect("Failed to initialise Poseidon");
 
-        // Hash: Commitment = Poseidon(age, salt, pk_P),
-        // Binding the prover's age, random salt, and prover's public key together
+        // Hash: Commitment = Poseidon(age, salt, pk_p),
+        // Binding the prover's age, random salt, and prover's public key (pk_p) together
         let commitment = hasher
             .hash(&[age_fr, salt, request.pk_p])
             .expect("Poseidon hash failed");

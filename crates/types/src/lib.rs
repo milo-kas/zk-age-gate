@@ -7,7 +7,7 @@ use ed25519_dalek::Signature;
 /// Prover to Issuer payload structure
 #[derive(Clone, Debug)]
 pub struct AgeRequest {
-    // Prover public key
+    // Prover public key (pk_p)
     pub pk_p: Fr,
     // Mock ID, Private input; can be used to generate age
     pub id: String,
@@ -36,7 +36,7 @@ pub struct ProofPackage {
     // All public inputs
     // No threshold age as the Verifier already knows it
     pub commitment: Fr,
-    pub pk_p: Fr,
+    pub pk_p: Fr, // Prover public key (pk)
     pub signature: Signature,
 
     // Proof
