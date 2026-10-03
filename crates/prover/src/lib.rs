@@ -57,7 +57,7 @@ impl Prover {
         Self {
             pk_p: Fr::from(csprng.next_u64()),
             credential_package: None,
-            id
+            id,
         }
     }
 
@@ -139,14 +139,12 @@ impl Prover {
 
         // Construct and return the final ProofPackage
         // threshold_age is not packaged as the Verifier uses their own known threshold
-        let proof_package = ProofPackage {
+        ProofPackage {
             commitment: credential_package.commitment,
             pk_p: self.pk_p,
             signature: credential_package.signature,
             proof,
-        };
-
-        proof_package
+        }
     }
 
     /// Receive status from Verifier

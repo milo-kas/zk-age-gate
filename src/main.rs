@@ -17,9 +17,7 @@ async fn main() {
 
     // Initialise Isolated Actors
     let issuer = Issuer::new(setup_identity_records());
-    let mut prover = Prover::new(
-        String::from("SOME_ID")
-    );
+    let mut prover = Prover::new(String::from("SOME_ID"));
 
     // Prover packages the age request ready for the trusted Issuer
     let age_request = prover.create_age_request(); // TODO: randomise the ID
