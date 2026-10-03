@@ -15,17 +15,17 @@ The prover's age is verified entirely via ZKP (Groth16 over BN254 with native C+
 ## Quick Start
 _**Requirements**: The only requirement is `Docker` with the `compose` plugin_
 
-Clone & Setup
+First-time Setup & Build
 ```bash
 docker compose run --rm zk-env just setup
 ```
 Run end-to-end simulation
 ```bash
-docker compose run --rm zk-env just run
+docker compose run --rm zk-env cargo r
 ```
 Run tests
 ```bash
-docker compose run --rm zk-env just test
+docker compose run --rm zk-env cargo test
 ```
 
 ### Demo Output (Prover Age: 20, Threshold Age: 20):

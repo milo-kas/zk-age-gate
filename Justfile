@@ -20,18 +20,6 @@ setup-zkey:
     snarkjs groth16 setup circuits/build/age_gate.r1cs circuits/build/pot12_final.ptau circuits/build/age_gate_0000.zkey
     snarkjs zkey contribute circuits/build/age_gate_0000.zkey circuits/build/age_gate.zkey --name="test" -v -e="idk"
 
-# Rust
-build:
-    cargo build
-
-run:
-    cargo r
-
-test:
-    cargo test
-
-check:
-    cargo check
-
 # Setup
-setup: gen-ptau compile-circuit setup-zkey build
+setup: gen-ptau compile-circuit setup-zkey
+    cargo build
