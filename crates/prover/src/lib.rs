@@ -50,14 +50,14 @@ pub struct Prover {
 
 impl Prover {
     /// Instantiate a new Prover
-    pub fn new(id: String) -> Self {
+    pub fn new(id: impl Into<String>) -> Self {
         prover_log!("Initialising...");
 
         let mut csprng = UnwrapErr(SysRng);
         Self {
             pk_p: Fr::from(csprng.next_u64()),
             credential_package: None,
-            id,
+            id: id.into(),
         }
     }
 
@@ -101,13 +101,13 @@ impl Prover {
         // HashMap inputs matching Circom circuit signal schema
         let inputs = HashMap::from([
             // Private Inputs
-            ("providedAge".to_string(), vec![age_str]),
-            ("providedSalt".to_string(), vec![salt_str]),
+            ("providedAge", vec![age_str]),
+            ("providedSalt", vec![salt_str]),
             // Public Inputs
-            ("thresholdAge".to_string(), vec![threshold_age_str]),
-            ("issuerCommitment".to_string(), vec![comm_str]),
-            ("pk_p".to_string(), vec![pk_str]),
-            ("nonce".to_string(), vec![nonce_str]),
+            ("thresholdAge", vec![threshold_age_str]),
+            ("issuerCommitment", vec![comm_str]),
+            ("pk_p", vec![pk_str]),
+            ("nonce", vec![nonce_str]),
         ]);
 
         // Serialise to JSON object
@@ -128,7 +128,7 @@ impl Prover {
             // Inputs
             input_str,
             // Path to Proving key
-            zkey_path.clone(),
+            zkey_path,
         )
         .expect("Failed to generate proof");
 
@@ -148,7 +148,7 @@ impl Prover {
     }
 
     /// Receive status from Verifier
-    pub fn receive_access_decision(&mut self, status: AccessStatus) {
+    pub fn receive_access_decision(&self, status: AccessStatus) {
         prover_log!("Received Access Decision: {:?}", status);
     }
 }

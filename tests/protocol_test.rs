@@ -8,12 +8,12 @@ use types::AccessStatus;
 
 #[test]
 fn grants_access_when_age_meets_threshold() {
-    let id = String::from("SOME_ID");
+    let id = "SOME_ID";
 
     let age = 20;
     let threshold = 18;
 
-    let identity_records = HashMap::from([(id.clone(), age)]);
+    let identity_records = HashMap::from([(id.to_string(), age)]);
 
     // init
     let issuer = Issuer::new(identity_records);
