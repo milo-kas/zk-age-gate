@@ -1,15 +1,19 @@
 services:
   zk-env:
-    build: .
-    user: "${UID:-1000}:${GID:-1000}"
+    build:
+      context: .
+      args:
+        USER_UID: ${UID:-1000}
+        USER_GID: ${GID:-1000}
     environment:
-      - CARGO_TARGET_DIR=/tmp/cargo-target
-      - CARGO_HOME=/tmp/cargo-home
+      - CARGO_TARGET_DIR=/usr/local/cargo/target
     volumes:
       - ./:/workspace
-      - cargo-target:/tmp/cargo-target
-      - cargo-home:/tmp/cargo-home
+      - cargo-cache:/usr/local/cargo/registry
+      - cargo-git:/usr/local/cargo/git
+      - target-cache:/usr/local/cargo/target
 
 volumes:
-  cargo-target:
-  cargo-home:
+  cargo-cache:
+  cargo-git:
+  target-cache:
