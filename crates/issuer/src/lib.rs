@@ -1,15 +1,11 @@
 //! Defines the Issuer Actor
 
 use ark_bn254::Fr;
-use ark_ff::{BigInteger, PrimeField};
+use ark_ff::{BigInteger, PrimeField, UniformRand};
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
-use getrandom::{
-    SysRng,
-    rand_core::{Rng, UnwrapErr},
-};
 use light_poseidon::{Poseidon, PoseidonHasher};
 use std::collections::HashMap;
-
+use ark_std::rand::{RngCore, rngs::OsRng};
 use types::{AgeRequest, CredentialPackage, IssuerError, colored::Colorize, issuer_log};
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)
@@ -24,10 +20,14 @@ impl Issuer {
     pub fn new(identity_records: HashMap<String, u8>) -> Self {
         issuer_log!("Initialising...");
 
-        // Guarantee that the provided entropy is from the OS and not a fallback
-        let mut csprng = UnwrapErr(SysRng);
+        let mut rng = OsRng;
+
+        // Generate 32 bytes of OS entropy
+        let mut seed = [0u8; 32];
+        rng.fill_bytes(&mut seed);
+
         // Generate keypair (secret signing key and public verifying key)
-        let signing_key = SigningKey::generate(&mut csprng);
+        let signing_key = SigningKey::from_bytes(&seed);
         Self {
             signing_key,
             identity_records,
@@ -41,7 +41,7 @@ impl Issuer {
 
     /// Process Prover's ID and issue the Credential Package incl. the Signed Commitment
     pub fn issue_credential(&self, request: AgeRequest) -> Result<CredentialPackage, IssuerError> {
-        let mut csprng = UnwrapErr(SysRng);
+        let mut rng = OsRng;
 
         // Fetch the age associated with ID
         issuer_log!("Verifying ID: {}...", request.id);
@@ -51,7 +51,7 @@ impl Issuer {
         };
 
         // Generate secure random salt and wrap to BN254 field format
-        let salt = Fr::from(csprng.next_u64());
+        let salt = Fr::rand(&mut rng);
         let age_fr = Fr::from(age);
 
         // Create hasher

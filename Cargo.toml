@@ -17,6 +17,7 @@ tokio = "1.53.1"
 ed25519-dalek = { workspace = true }
 
 # ARK
+ark-std = { workspace = true }
 ark-bn254 = { workspace = true }
 ark-groth16 = { workspace = true }
 ark-snark = { workspace = true }
@@ -43,6 +44,7 @@ issuer = { path = "crates/issuer" }
 prover = { path = "crates/prover" }
 verifier = { path = "crates/verifier" }
 
+ark-std = { version = "0.5.0", features = ["std"] }
 ark-bn254 = "0.5.0"
 ark-ff = "0.5.0"
 ark-groth16 = "0.5.0"
