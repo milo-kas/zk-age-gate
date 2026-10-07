@@ -5,9 +5,9 @@ use types::{
 };
 
 // ARK & Prover Frameworks
-use ark_std::rand::rngs::OsRng;
 use ark_bn254::{Bn254, Fr};
-use ark_ff::{UniformRand, BigInteger, PrimeField};
+use ark_ff::{BigInteger, PrimeField, UniformRand};
+use ark_std::rand::rngs::OsRng;
 use circom_prover::{CircomProver, prover::ProofLib, witness::WitnessFn};
 use witnesscalc_adapter::witness;
 

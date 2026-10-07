@@ -44,7 +44,8 @@ issuer = { path = "crates/issuer" }
 prover = { path = "crates/prover" }
 verifier = { path = "crates/verifier" }
 
-ark-std = { version = "0.5.0", features = ["std"] }
+ark-std = { version = "0.5.0", features = ["getrandom"] }
+
 ark-bn254 = "0.5.0"
 ark-ff = "0.5.0"
 ark-groth16 = "0.5.0"

@@ -2,10 +2,10 @@
 
 use ark_bn254::Fr;
 use ark_ff::{BigInteger, PrimeField, UniformRand};
+use ark_std::rand::{RngCore, rngs::OsRng};
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use light_poseidon::{Poseidon, PoseidonHasher};
 use std::collections::HashMap;
-use ark_std::rand::{RngCore, rngs::OsRng};
 use types::{AgeRequest, CredentialPackage, IssuerError, colored::Colorize, issuer_log};
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)

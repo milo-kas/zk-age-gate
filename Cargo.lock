@@ -1861,10 +1861,9 @@ version = "0.1.0"
 dependencies = [
  "ark-bn254",
  "ark-ff",
+ "ark-std",
  "ed25519-dalek",
- "getrandom 0.4.3",
  "light-poseidon",
- "rand_core 0.10.1",
  "types",
 ]
 

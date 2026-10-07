@@ -5,11 +5,11 @@ use types::{AccessStatus, ProofPackage, colored::Colorize, verifier_log};
 use std::fs::File;
 use std::io::BufReader;
 // Ark
-use ark_std::rand::{RngCore, rngs::OsRng};
 use ark_bn254::{Bn254, Fr};
 use ark_ff::{BigInteger, PrimeField};
 use ark_groth16::{Groth16, prepare_verifying_key};
 use ark_snark::SNARK;
+use ark_std::rand::{RngCore, rngs::OsRng};
 // Signature
 use ed25519_dalek::{Verifier as _, VerifyingKey};
 
