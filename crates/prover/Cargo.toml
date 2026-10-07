@@ -17,7 +17,7 @@ wasmer-wasix = { version = "0.28.0", features = ["sys"] }
 ark-bn254 = { workspace = true }
 ark-ff = { workspace = true }
 ark-groth16 = { workspace = true }
-ark-std = "0.5.0"
+ark-std = { workspace = true }
 
 witnesscalc-adapter = "0.1.7"
 

@@ -9,13 +9,10 @@ use ark_bn254::{Bn254, Fr};
 use ark_ff::{BigInteger, PrimeField};
 use ark_groth16::{Groth16, prepare_verifying_key};
 use ark_snark::SNARK;
+use ark_std::rand::{RngCore, rngs::OsRng};
 // Signature
 use ed25519_dalek::{Verifier as _, VerifyingKey};
 
-use getrandom::{
-    SysRng,
-    rand_core::{Rng, UnwrapErr},
-};
 use types::AccessStatus::{Denied, Granted};
 
 /// Verifier acts as the relaying-party checking the proof
@@ -48,8 +45,8 @@ impl Verifier {
 
     /// Generate a nonce for the next proof package
     pub fn issue_nonce(&mut self) -> u64 {
-        let mut csprng = UnwrapErr(SysRng);
-        let nonce = csprng.next_u64();
+        let mut rng = OsRng;
+        let nonce = rng.next_u64();
 
         self.current_nonce = Some(nonce);
         verifier_log!("Issued nonce: {}", nonce);

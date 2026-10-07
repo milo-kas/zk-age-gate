@@ -6,7 +6,8 @@ use types::{
 
 // ARK & Prover Frameworks
 use ark_bn254::{Bn254, Fr};
-use ark_ff::{BigInteger, PrimeField};
+use ark_ff::{BigInteger, PrimeField, UniformRand};
+use ark_std::rand::rngs::OsRng;
 use circom_prover::{CircomProver, prover::ProofLib, witness::WitnessFn};
 use witnesscalc_adapter::witness;
 
@@ -15,11 +16,6 @@ use num_bigint::{BigInt, Sign};
 use std::collections::HashMap;
 
 witness!(age_gate);
-
-use getrandom::{
-    SysRng,
-    rand_core::{Rng, UnwrapErr},
-};
 
 /// Finite Field Element Extension
 pub trait FrExt {
@@ -37,8 +33,6 @@ impl FrExt for Fr {
     }
 }
 
-// TODO: verifier sends age threshold request
-
 /// Prover acts as the end-user proving their age is above a given threshold.
 ///
 /// Encapsulates local state storage required to request credentials and generate proofs.
@@ -55,9 +49,9 @@ impl Prover {
     pub fn new(id: impl Into<String>) -> Self {
         prover_log!("Initialising...");
 
-        let mut csprng = UnwrapErr(SysRng);
+        let mut rng = OsRng;
         Self {
-            pk_p: Fr::from(csprng.next_u64()),
+            pk_p: Fr::rand(&mut rng),
             credential_package: None,
             id: id.into(),
         }

@@ -1861,10 +1861,9 @@ version = "0.1.0"
 dependencies = [
  "ark-bn254",
  "ark-ff",
+ "ark-std",
  "ed25519-dalek",
- "getrandom 0.4.3",
  "light-poseidon",
- "rand_core 0.10.1",
  "types",
 ]
 
@@ -3825,8 +3824,8 @@ dependencies = [
  "ark-ff",
  "ark-groth16",
  "ark-snark",
+ "ark-std",
  "ed25519-dalek",
- "getrandom 0.4.3",
  "types",
 ]
 
@@ -4902,6 +4901,7 @@ dependencies = [
  "ark-ff",
  "ark-groth16",
  "ark-snark",
+ "ark-std",
  "colored",
  "ed25519-dalek",
  "issuer",

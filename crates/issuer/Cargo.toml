@@ -6,9 +6,9 @@ edition = "2024"
 [dependencies]
 types = { workspace = true }
 
-ark-bn254 = "0.5.0"
-ark-ff = "0.5.0"
+ark-std = { workspace = true }
+ark-bn254 = { workspace = true }
+ark-ff = { workspace = true }
+
 ed25519-dalek = { version = "3.0.0", features = ["rand_core"] }
 light-poseidon = "0.4.0"
-getrandom = { version = "0.4.3", features = ["sys_rng"] }
-rand_core = "0.10.1"
