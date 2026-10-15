@@ -44,3 +44,19 @@ fn grants_access_when_age_meets_threshold() {
         "Should grant access for valid proof"
     );
 }
+
+#[test]
+fn denies_access_when_age_is_below_threshold() {
+    let id = "SOME_ID";
+
+    let age = 10;
+    let threshold = 18;
+
+    let access_decision = run_protocol(age, threshold, id);
+
+    assert_eq!(
+        access_decision,
+        AccessStatus::Denied,
+        "Should deny access for invalid proof (age < threshold)"
+    );
+}
