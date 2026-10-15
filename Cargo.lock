@@ -2436,7 +2436,6 @@ dependencies = [
  "ark-groth16",
  "ark-std",
  "circom-prover",
- "getrandom 0.4.3",
  "num-bigint",
  "serde_json",
  "types",
