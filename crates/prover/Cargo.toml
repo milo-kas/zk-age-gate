@@ -6,25 +6,23 @@ edition = "2024"
 [dependencies]
 types = { workspace = true }
 
-# Enable BOTH witnesscalc and arkworks features for circom-prover
-circom-prover = { version = "0.1.4", default-features = false, features = ["witnesscalc", "arkworks"] }
+# Circom proving (native C++ witness)
+circom-prover = { workspace = true }
+witnesscalc-adapter = { workspace = true }
 
 # Satisfy Wasmer's compile-time requirement for a native backend flag (pulled in by ark-circom)
 wasmer = { version = "4.4.0", features = ["sys"] }
 wasmer-wasix = { version = "0.28.0", features = ["sys"] }
 
-# Ark
+# ARK
+ark-std = { workspace = true }
 ark-bn254 = { workspace = true }
 ark-ff = { workspace = true }
 ark-groth16 = { workspace = true }
-ark-std = { workspace = true }
 
-witnesscalc-adapter = "0.1.7"
-
-getrandom = { version = "0.4.3", features = ["sys_rng"] }
+# Utilities
 num-bigint = "0.4.8"
 serde_json = "1.0.151"
 
 [build-dependencies]
-# Native C++ witness architecture
-witnesscalc-adapter = "0.1.7"
+witnesscalc-adapter = { workspace = true }

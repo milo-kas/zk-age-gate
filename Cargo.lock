@@ -4896,16 +4896,7 @@ dependencies = [
 name = "zk-age-gate"
 version = "0.1.0"
 dependencies = [
- "ark-bn254",
- "ark-circom",
- "ark-ff",
- "ark-groth16",
- "ark-snark",
- "ark-std",
- "colored",
- "ed25519-dalek",
  "issuer",
- "log",
  "prover",
  "tokio",
  "types",

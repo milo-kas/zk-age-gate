@@ -6,13 +6,13 @@ edition = "2024"
 [dependencies]
 types = { workspace = true }
 
-# ark
+# ARK
 ark-std = { workspace = true }
 ark-bn254 = { workspace = true }
 ark-ff = { workspace = true }
 ark-groth16 = { workspace = true }
 ark-snark = { workspace = true }
-ark-circom = { version = "0.5.0", default-features = false }
+ark-circom = { workspace = true }
 
-# signature
+# Signature
 ed25519-dalek = { workspace = true }

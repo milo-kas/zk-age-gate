@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ark-bn254 = "0.5.0"
-ark-groth16 = "0.5.0"
-ed25519-dalek = "3.0.0"
+ark-bn254 = { workspace = true }
+ark-groth16 = { workspace = true }
+ed25519-dalek = { workspace = true }
 
 colored = { workspace = true }
