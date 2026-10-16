@@ -2,7 +2,28 @@
 
 use ark_bn254::{Bn254, Fr};
 use ark_groth16::Proof;
+use chrono::naive::NaiveDate;
 use ed25519_dalek::Signature;
+
+/// Date of Birth
+#[derive(Clone, Debug)]
+pub struct DoB {
+    pub year: u16,
+    pub month: u8,
+    pub day: u8,
+}
+
+impl DoB {
+    /// Convert DoB to total days since Unix Epoch (1970 Jan 1)
+    pub fn to_days_since_epoch(&self) -> u32 {
+        let date = NaiveDate::from_ymd_opt(self.year.into(), self.month.into(), self.day.into())
+            .expect("Invalid date of birth:");
+
+        let epoch = NaiveDate::from_ymd_opt(1970, 1, 1).expect("valid epoch date");
+
+        (date - epoch).num_days() as u32
+    }
+}
 
 /// Prover to Issuer payload structure
 #[derive(Clone, Debug)]
