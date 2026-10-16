@@ -46,5 +46,8 @@ light-poseidon = "0.4.0"
 circom-prover = { version = "0.1.4", default-features = false, features = ["witnesscalc", "arkworks"] }
 witnesscalc-adapter = "0.1.7"
 
+# Age / Dates
+chrono = "0.4.45"
+
 # Utilities
 colored = "3.1.1"
