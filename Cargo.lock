@@ -4895,7 +4895,9 @@ dependencies = [
 name = "zk-age-gate"
 version = "0.1.0"
 dependencies = [
+ "ark-bn254",
  "issuer",
+ "light-poseidon",
  "prover",
  "tokio",
  "types",

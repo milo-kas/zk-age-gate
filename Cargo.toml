@@ -12,6 +12,10 @@ verifier = { workspace = true }
 
 tokio = "1.53.1"
 
+[dev-dependencies]
+ark-bn254 = { workspace = true }
+light-poseidon = { workspace = true }
+
 # Fixed witnesscalc C++ filter for `.dat`. TODO: update after PR approval
 [patch.crates-io]
 witnesscalc-adapter = { git = "https://github.com/milo-kas/witnesscalc_adapter.git", branch = "fix-circom-cpp-filter" }
