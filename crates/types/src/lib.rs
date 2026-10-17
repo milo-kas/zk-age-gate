@@ -14,14 +14,25 @@ pub struct DoB {
 }
 
 impl DoB {
-    /// Convert DoB to total days since Unix Epoch (1970 Jan 1)
+    /// Convert DoB to total days since Epoch (1900 Jan 1)
+    ///
+    /// Starting at 1900-01-01 guarantees non-negative day counts for living people,
+    /// avoiding integer underflow when cast to u32 and fitting within the 32-bit circuit range.
     pub fn to_days_since_epoch(&self) -> u32 {
         let date = NaiveDate::from_ymd_opt(self.year.into(), self.month.into(), self.day.into())
-            .expect("Invalid date of birth:");
+            .expect("Invalid date of birth");
 
-        let epoch = NaiveDate::from_ymd_opt(1970, 1, 1).expect("valid epoch date");
+        let epoch = NaiveDate::from_ymd_opt(1900, 1, 1)
+            .expect("Valid epoch date");
 
-        (date - epoch).num_days() as u32
+        let days = (date - epoch).num_days();
+        assert!(
+            days >= 0,
+            "Date of birth must be on or after 1900-01-01 (got {}-{:02}-{:02})",
+            self.year, self.month, self.day
+        );
+
+        days as u32
     }
 }
 
