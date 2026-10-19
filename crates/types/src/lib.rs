@@ -2,18 +2,19 @@
 
 use ark_bn254::{Bn254, Fr};
 use ark_groth16::Proof;
+use chrono::{Datelike, Months};
 use chrono::naive::NaiveDate;
 use ed25519_dalek::Signature;
 
 /// Date of Birth
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct DoB {
     pub year: u16,
     pub month: u8,
     pub day: u8,
 }
 
-impl DoB {
+impl DoB { // TODO: input checks
     /// Convert DoB to total days since Epoch (1900 Jan 1)
     ///
     /// Starting at 1900-01-01 guarantees non-negative day counts for living people,
@@ -34,6 +35,20 @@ impl DoB {
 
         days as u32
     }
+
+    /// Compute the latest permissible DoB for a given age threshold
+    pub fn calculate_dob_cutoff(today: NaiveDate, age_years: u8) -> DoB {
+        let cutoff = today
+            .checked_sub_months(Months::new(age_years as u32 * 12))
+            .expect("Valid calendar subtraction");
+
+        Self {
+            year: u16::try_from(cutoff.year())
+                .expect("Cutoff year out of u16 range"),
+            month: cutoff.month() as u8,
+            day: cutoff.day() as u8,
+        }
+    }
 }
 
 /// Prover to Issuer payload structure
@@ -49,7 +64,7 @@ pub struct AgeRequest {
 #[derive(Clone, Debug)]
 pub struct CredentialPackage {
     // Private inputs
-    pub age: u8,
+    pub dob_epoch: u32,
     pub salt: Fr,
     // Public inputs
     pub commitment: Fr,
@@ -66,7 +81,7 @@ pub enum IssuerError {
 #[derive(Clone, Debug)]
 pub struct ProofPackage {
     // All public inputs
-    // No threshold age as the Verifier already knows it
+    // No threshold DoB epoch as the Verifier already knows it
     pub commitment: Fr,
     pub pk_p: Fr, // Prover public key (pk)
     pub signature: Signature,
