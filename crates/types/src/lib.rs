@@ -77,6 +77,13 @@ pub enum IssuerError {
     IdNotFound(String),
 }
 
+/// Verifier challenge payload
+#[derive(Clone, Debug)]
+pub struct VerifierChallenge {
+    pub nonce: u64,
+    pub threshold_epoch: u32,
+}
+
 /// Prover to Verifier payload structure
 #[derive(Clone, Debug)]
 pub struct ProofPackage {
