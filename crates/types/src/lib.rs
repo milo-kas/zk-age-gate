@@ -2,9 +2,26 @@
 
 use ark_bn254::{Bn254, Fr};
 use ark_groth16::Proof;
-use chrono::{Datelike, Months};
 use chrono::naive::NaiveDate;
+use chrono::{Datelike, Months};
 use ed25519_dalek::Signature;
+
+/// Global protocol schema rules
+pub mod schema {
+    use chrono::NaiveDate;
+
+    pub const VERSION: u8 = 1;
+
+    pub const EPOCH_START_YEAR: i32 = 1900;
+    pub const EPOCH_START_MONTH: u32 = 1;
+    pub const EPOCH_START_DAY: u32 = 1;
+
+    #[inline]
+    pub const fn epoch_start_date() -> NaiveDate {
+        NaiveDate::from_ymd_opt(EPOCH_START_YEAR, EPOCH_START_MONTH, EPOCH_START_DAY)
+            .expect("Valid epoch date")
+    }
+}
 
 /// Date of Birth
 #[derive(Clone, Copy, Debug)]
@@ -14,7 +31,8 @@ pub struct DoB {
     pub day: u8,
 }
 
-impl DoB { // TODO: input checks
+impl DoB {
+    // TODO: input checks
     /// Convert DoB to total days since Epoch (1900 Jan 1)
     ///
     /// Starting at 1900-01-01 guarantees non-negative day counts for living people,
@@ -23,14 +41,13 @@ impl DoB { // TODO: input checks
         let date = NaiveDate::from_ymd_opt(self.year.into(), self.month.into(), self.day.into())
             .expect("Invalid date of birth");
 
-        let epoch = NaiveDate::from_ymd_opt(1900, 1, 1)
-            .expect("Valid epoch date");
-
-        let days = (date - epoch).num_days();
+        let days = (date - schema::epoch_start_date()).num_days();
         assert!(
             days >= 0,
             "Date of birth must be on or after 1900-01-01 (got {}-{:02}-{:02})",
-            self.year, self.month, self.day
+            self.year,
+            self.month,
+            self.day
         );
 
         days as u32
@@ -43,8 +60,7 @@ impl DoB { // TODO: input checks
             .expect("Valid calendar subtraction");
 
         Self {
-            year: u16::try_from(cutoff.year())
-                .expect("Cutoff year out of u16 range"),
+            year: u16::try_from(cutoff.year()).expect("Cutoff year out of u16 range"),
             month: cutoff.month() as u8,
             day: cutoff.day() as u8,
         }
@@ -78,7 +94,7 @@ pub enum IssuerError {
 }
 
 /// Verifier challenge payload
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct VerifierChallenge {
     pub nonce: u64,
     pub threshold_epoch: u32,
