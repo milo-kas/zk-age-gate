@@ -1,6 +1,7 @@
 //! Defines the strict rules (payloads) of the protocol
 
 use ark_bn254::{Bn254, Fr};
+use ark_ff::{BigInteger, PrimeField};
 use ark_groth16::Proof;
 use chrono::naive::NaiveDate;
 use chrono::{Datelike, Months};
@@ -8,7 +9,7 @@ use ed25519_dalek::Signature;
 
 /// Global protocol schema rules
 pub mod schema {
-    use chrono::NaiveDate;
+    use super::*;
 
     pub const VERSION: u8 = 1;
 
@@ -20,6 +21,17 @@ pub mod schema {
     pub const fn epoch_start_date() -> NaiveDate {
         NaiveDate::from_ymd_opt(EPOCH_START_YEAR, EPOCH_START_MONTH, EPOCH_START_DAY)
             .expect("Valid epoch date")
+    }
+
+    /// Serialises the commitment AND schema version into a single byte array for
+    /// Ed25519 signing and verification
+    #[inline]
+    pub fn bind_commitment_with_version(commitment: &Fr) -> [u8; 33] {
+        let mut bytes = [0u8; 33];
+        bytes[..32].copy_from_slice(&commitment.into_bigint().to_bytes_le());
+        bytes[32] = VERSION;
+
+        bytes
     }
 }
 
@@ -79,6 +91,7 @@ pub struct AgeRequest {
 /// Issuer to Prover payload structure
 #[derive(Clone, Debug)]
 pub struct CredentialPackage {
+    pub schema_version: u8,
     // Private inputs
     pub dob_epoch: u32,
     pub salt: Fr,
