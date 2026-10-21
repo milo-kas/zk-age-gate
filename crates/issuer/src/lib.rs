@@ -1,23 +1,25 @@
 //! Defines the Issuer Actor
 
 use ark_bn254::Fr;
-use ark_ff::{BigInteger, PrimeField, UniformRand};
+use ark_ff::UniformRand;
 use ark_std::rand::{RngCore, rngs::OsRng};
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use light_poseidon::{Poseidon, PoseidonHasher};
 use std::collections::HashMap;
-use types::{AgeRequest, CredentialPackage, IssuerError, colored::Colorize, issuer_log};
+use types::{
+    AgeRequest, CredentialPackage, DoB, IssuerError, colored::Colorize, issuer_log, schema,
+};
 
 /// Issuer acts as a trusted authority (i.e. KYC provider, government, etc)
 pub struct Issuer {
     /// Secret key used to sign age commitment
     signing_key: SigningKey,
-    identity_records: HashMap<String, u8>,
+    identity_records: HashMap<String, DoB>,
 }
 
 impl Issuer {
     /// Initialise the Issuer with a newly generated Ed25519 keypair
-    pub fn new(identity_records: HashMap<String, u8>) -> Self {
+    pub fn new(identity_records: HashMap<String, DoB>) -> Self {
         issuer_log!("Initialising...");
 
         let mut rng = OsRng;
@@ -35,7 +37,7 @@ impl Issuer {
     }
 
     /// Public key getter, allows Verifier to validate signature in the ProofPackage
-    pub fn get_public_key(&self) -> VerifyingKey {
+    pub fn public_key(&self) -> VerifyingKey {
         self.signing_key.verifying_key()
     }
 
@@ -45,14 +47,17 @@ impl Issuer {
 
         // Fetch the age associated with ID
         issuer_log!("Verifying ID: {}...", request.id);
-        let age = match self.identity_records.get(&request.id) {
-            Some(age) => *age,
+        let dob = match self.identity_records.get(&request.id) {
+            Some(dob) => *dob,
             None => return Err(IssuerError::IdNotFound(request.id)),
         };
 
+        // Convert DoB to protocol Epoch
+        let dob_epoch = dob.to_days_since_epoch();
+
         // Generate secure random salt and wrap to BN254 field format
         let salt = Fr::rand(&mut rng);
-        let age_fr = Fr::from(age);
+        let dob_epoch_fr = Fr::from(dob_epoch);
 
         // Create hasher
         let mut hasher = Poseidon::<Fr>::new_circom(3).expect("Failed to initialise Poseidon");
@@ -60,19 +65,20 @@ impl Issuer {
         // Hash: Commitment = Poseidon(age, salt, pk_p),
         // Binding the prover's age, random salt, and prover's public key (pk_p) together
         let commitment = hasher
-            .hash(&[age_fr, salt, request.pk_p])
+            .hash(&[dob_epoch_fr, salt, request.pk_p])
             .expect("Poseidon hash failed");
 
         // Sign the commitment
-        // Convert the BN254 commitment to little-endian byte arr, to sign
-        let commitment_bytes = commitment.into_bigint().to_bytes_le();
-        let signature: Signature = self.signing_key.sign(&commitment_bytes);
+        // Convert the BN254 commitment to little-endian byte arr AND schema version, to sign
+        let signature_payload_bytes = schema::bind_commitment_with_version(&commitment);
+        let signature: Signature = self.signing_key.sign(&signature_payload_bytes);
 
         issuer_log!("Packaging credentials...");
 
         // Package the credentials.
         Ok(CredentialPackage {
-            age,
+            schema_version: schema::VERSION,
+            dob_epoch,
             salt,
             commitment,
             signature,

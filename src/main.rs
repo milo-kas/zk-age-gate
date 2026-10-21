@@ -9,7 +9,7 @@ use prover::Prover;
 use std::collections::HashMap;
 use verifier::Verifier;
 
-use types::{colored::Colorize, coord_log};
+use types::{DoB, colored::Colorize, coord_log};
 
 #[tokio::main]
 async fn main() {
@@ -35,14 +35,13 @@ async fn main() {
     prover.receive_credential_package(credential_package);
 
     // Initialise Verifier with age threshold
-    let mut verifier = Verifier::new(20, issuer.get_public_key());
+    let mut verifier = Verifier::new(20, issuer.public_key());
 
-    let age_threshold = verifier.get_age_policy();
-    let nonce = verifier.issue_nonce();
-    coord_log!("Routing age policy & nonce to Prover...");
+    let verifier_challenge = verifier.issue_challenge();
+    coord_log!("Routing DoB cutoff epoch & nonce to Prover...");
 
-    // Prover generates proof that meets age_threshold
-    let proof_package = prover.generate_proof_package(age_threshold, nonce);
+    // Prover generates proof that meets verifier_challenge
+    let proof_package = prover.generate_proof_package(verifier_challenge);
 
     coord_log!("Routing Proof Package to Verifier...");
 
@@ -55,9 +54,16 @@ async fn main() {
     prover.receive_access_decision(access_decision);
 }
 
-fn setup_identity_records() -> HashMap<String, u8> {
+fn setup_identity_records() -> HashMap<String, DoB> {
     let mut identity_records = HashMap::new();
-    identity_records.insert("SOME_ID".to_string(), 25);
+
+    let dob = DoB {
+        year: 2005,
+        month: 1,
+        day: 1,
+    };
+
+    identity_records.insert("SOME_ID".to_string(), dob);
 
     identity_records
 }

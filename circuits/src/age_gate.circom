@@ -4,27 +4,27 @@ include "circomlib/circuits/poseidon.circom";
 
 template AgeGate() {
     /*
-    Enforce that provided age is greater than or equal to public threshold age
+    Enforce that the DoB epoch is lower than or equal to public DoB cutoff epoch.
+    - Equivalent to enforcing that Prover's Age is greater than or equal to the Age threshold policy.
 
-    **SECURITY WARNING**:
+    **SECURITY CONSIDERATION**:
     - This template is strictly designed for human age verification adhering to the macro protocol design
-    - BOTH threshold and provided age size can't be over 255 AND
+    - BOTH threshold and DoB epoch size must be less than 2^32
     - Public threshold MUST be validated by the verifier via public input before proof verification
 
-    NOTE: poseidon hash commits to the provided age due to issuer trust.
+    NOTE: poseidon hash commits to the provided DoB epoch due to issuer trust.
 
-    OPTIMISATION NOTE: For fewer constraints, ranges for providedAge and thresholdAge are left unconstrained,
-    the architecture places 100% trust on the issuer and that the verifier will validate the public thresholdAge.
+    OPTIMISATION NOTE: For fewer constraints, ranges for dobEpoch and thresholdEpoch are left unconstrained,
+    the architecture places 100% trust on the issuer and that the verifier will validate the public thresholdEpoch.
     */
 
-    signal input providedAge;
-    signal input thresholdAge;
+    signal input dobEpoch;
+    signal input thresholdEpoch;
 
     signal result;
 
-    // Hardcode range limit
+    // (8 bit range for STATIC AGES calculation example)
     // 8 bits: 0 to 255 age range; 9th bit reserved for holding truth value
-    var range = 8;
 
     // e.g. providedAge = 10, thresholdAge = 20
     // 1 << range = 1 0000 0000
@@ -37,14 +37,21 @@ template AgeGate() {
     // = 0 1111 0110 // result
     // The 9th bit = 0, 10 did not absorb 20, it's lower than threshold
 
-    result <== (1 << range) + providedAge - thresholdAge;
+    // DoB Epoch:
+    // Actual uses 33 bits (+1 bit for range condition) due to epoch schema (using days since a schema-defined date)
+    // An older person was born earlier, thus SMALLER day count
+    // thresholdEpoch >= dobEpoch to satisfy a greater age threshold
 
-    // Verify whether the 9th bit is 1
+    var range = 32;
+
+    result <== (1 << range) + thresholdEpoch - dobEpoch;
+
+    // Verify whether the 33rd bit is 1
     signal resultBitArr[range + 1];
 
     var resultBitSum = 0;
 
-    // Loop through all 9 bits (range)
+    // Loop through all 33 bits
     for (var i = 0; i <= range; i++) {
           resultBitArr[i] <-- (result >> i) & 1;
 
@@ -56,10 +63,10 @@ template AgeGate() {
     }
 
     // Verify whether the sum of the bits from the bitArr signal aligns with the original result signal
-    // Proves that the magnitude is maintained within the 9 bit range
+    // Proves that the magnitude is maintained within the 33 bit range
     resultBitSum === result;
 
-    // Final threshold check: if provided age >= threshold age
+    // Final threshold check: if provided epoch <= threshold epoch
     1 === resultBitArr[range];
 }
 
@@ -68,15 +75,16 @@ template AgeCommitmentGate() {
     Age and poseidon wrapper
 
     Public inputs:
-    thresholdAge, issuerCommitment
+    thresholdEpoch, issuerCommitment
     pk_p -- Prover's public key (pk)
+    nonce
 
     Private inputs:
-    providedSalt, providedAge
+    salt, dobEpoch
     */
 
     // public inputs
-    signal input thresholdAge;
+    signal input thresholdEpoch;
     signal input issuerCommitment;
     signal input pk_p;
 
@@ -86,25 +94,25 @@ template AgeCommitmentGate() {
     satisfyCompiler <== nonce * nonce;
 
     // private inputs
-    signal input providedAge;
-    signal input providedSalt;
+    signal input dobEpoch;
+    signal input salt;
 
-    // Generate poseidon hash with private provided age + salt + pk_p
+    // Generate poseidon hash with private DoB epoch + salt + pk_p
     component hasher = Poseidon(3);
-    hasher.inputs[0] <== providedAge;
-    hasher.inputs[1] <== providedSalt;
+    hasher.inputs[0] <== dobEpoch;
+    hasher.inputs[1] <== salt;
     hasher.inputs[2] <== pk_p;
 
-    // Verify the hash containing the age + salt + pk_p matches public hash signed by issuer
+    // Verify the hash containing the DoB epoch + salt + pk_p matches public hash signed by issuer
     hasher.out === issuerCommitment;
 
     component ageGate = AgeGate();
 
-    // As the provided age was proven to not be altered, wire it into the AgeGate
-    ageGate.providedAge <== providedAge;
+    // As the provided DoB epoch was proven to not be altered, wire it into the AgeGate
+    ageGate.dobEpoch <== dobEpoch;
     // Public input can safely be wired, burden is on verifier outside the circuit
-    ageGate.thresholdAge <== thresholdAge;
+    ageGate.thresholdEpoch <== thresholdEpoch;
 }
 
 // Run main age gate circuit with commitment and age binding.
-component main {public [thresholdAge, issuerCommitment, pk_p, nonce]} = AgeCommitmentGate();
+component main {public [thresholdEpoch, issuerCommitment, pk_p, nonce]} = AgeCommitmentGate();

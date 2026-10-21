@@ -1,7 +1,8 @@
 //! Defines the Prover Actor
 
 use types::{
-    AccessStatus, AgeRequest, CredentialPackage, ProofPackage, colored::Colorize, prover_log,
+    AccessStatus, AgeRequest, CredentialPackage, ProofPackage, VerifierChallenge,
+    colored::Colorize, prover_log,
 };
 
 // ARK & Prover Frameworks
@@ -75,7 +76,7 @@ impl Prover {
     }
 
     /// Generate Proof Package (with native C++) for the Verifier
-    pub fn generate_proof_package(&self, age_threshold: u8, nonce: u64) -> ProofPackage {
+    pub fn generate_proof_package(&self, verifier_challenge: VerifierChallenge) -> ProofPackage {
         let credential_package = self
             .credential_package
             .as_ref()
@@ -89,18 +90,18 @@ impl Prover {
         let pk_str = self.pk_p.to_base10_string();
 
         // Ages naturally convert to string
-        let age_str = credential_package.age.to_string();
-        let threshold_age_str = age_threshold.to_string();
+        let dob_epoch_str = credential_package.dob_epoch.to_string();
+        let threshold_dob_str = verifier_challenge.threshold_epoch.to_string();
 
-        let nonce_str = nonce.to_string();
+        let nonce_str = verifier_challenge.nonce.to_string();
 
         // HashMap inputs matching Circom circuit signal schema
         let inputs = HashMap::from([
             // Private Inputs
-            ("providedAge", vec![age_str]),
-            ("providedSalt", vec![salt_str]),
+            ("dobEpoch", vec![dob_epoch_str]),
+            ("salt", vec![salt_str]),
             // Public Inputs
-            ("thresholdAge", vec![threshold_age_str]),
+            ("thresholdEpoch", vec![threshold_dob_str]),
             ("issuerCommitment", vec![comm_str]),
             ("pk_p", vec![pk_str]),
             ("nonce", vec![nonce_str]),

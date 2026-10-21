@@ -11,8 +11,13 @@ prover = { workspace = true }
 verifier = { workspace = true }
 
 tokio = "1.53.1"
+chrono = "0.4.45"
+ark-bn254 = "0.5.0"
+light-poseidon = "0.4.0"
 
+# For tests
 [dev-dependencies]
+verifier = { workspace = true, features = ["test-utils"] }
 ark-bn254 = { workspace = true }
 light-poseidon = { workspace = true }
 
@@ -49,6 +54,9 @@ light-poseidon = "0.4.0"
 # Circom proving (native C++ witness)
 circom-prover = { version = "0.1.4", default-features = false, features = ["witnesscalc", "arkworks"] }
 witnesscalc-adapter = "0.1.7"
+
+# Age / Dates
+chrono = "0.4.45"
 
 # Utilities
 colored = "3.1.1"
