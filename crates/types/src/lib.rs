@@ -4,7 +4,7 @@ use ark_bn254::{Bn254, Fr};
 use ark_ff::{BigInteger, PrimeField};
 use ark_groth16::Proof;
 use chrono::naive::NaiveDate;
-use chrono::{Datelike, Months};
+use chrono::{Datelike, Months, Utc};
 use ed25519_dalek::Signature;
 
 /// Global protocol schema rules
@@ -66,9 +66,9 @@ impl DoB {
     }
 
     /// Compute the latest permissible DoB for a given age threshold
-    pub fn calculate_dob_cutoff(today: NaiveDate, age_years: u8) -> DoB {
-        let cutoff = today
-            .checked_sub_months(Months::new(age_years as u32 * 12))
+    pub fn calculate_dob_cutoff(reference_date: NaiveDate, age_policy_years: u8) -> DoB {
+        let cutoff = reference_date
+            .checked_sub_months(Months::new(age_policy_years as u32 * 12))
             .expect("Valid calendar subtraction");
 
         Self {
@@ -76,6 +76,11 @@ impl DoB {
             month: cutoff.month() as u8,
             day: cutoff.day() as u8,
         }
+    }
+
+    /// Helper using current UTC date
+    pub fn calculate_dob_cutoff_now(age_policy_years: u8) -> DoB {
+        Self::calculate_dob_cutoff(Utc::now().date_naive(), age_policy_years)
     }
 }
 
