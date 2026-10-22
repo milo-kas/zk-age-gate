@@ -5,12 +5,12 @@
 
 This is a custom age verification protocol that places 100% trust on the issuer (a.k.a. KYC / Government). 
 
-The prover's age is verified entirely via ZKP (Groth16 over BN254 with native C++ witness generation) and Ed25519 signature bound to a Poseidon hash for the commitment challenge.
+The prover's date of birth (DoB) is verified entirely via ZKP (Groth16 over BN254 with native C++ witness generation) and Ed25519 signature bound to a Poseidon hash for the commitment challenge. DoB is represented as days since the schema epoch (1900-01-01).
 
 ### Actors
-- Prover: Generates ZKP with the signed Poseidon commitment (hashed using the prover's age) issued by trusted body.
+- Prover: Generates ZKP with the signed Poseidon commitment (hashed using the prover's DoB epoch) issued by trusted body.
 - Issuer: The trusted body issuing and signing the Poseidon commitment.
-- Verifier: Provides the threshold age requirement with an ephemeral challenge nonce, and verifies the provided signature and the ZK proof.
+- Verifier: Provides the age policy as a DoB cutoff epoch with an ephemeral challenge nonce, and verifies the provided signature and the ZK proof.
 
 ## Quick Start
 _**Requirements**: The only requirement is `Docker` with the `compose` plugin_
@@ -28,7 +28,7 @@ Run tests
 docker compose run --rm zk-env cargo test
 ```
 
-### Demo Output (Prover Age: 20, Threshold Age: 20):
+### Demo Output (Prover DoB: 2005-01-01, Threshold Age: 20):
 ```
 [Protocol Coordinator] Starting protocol demo...
 [Issuer (INTERNAL)] Initialising...
@@ -41,9 +41,10 @@ docker compose run --rm zk-env cargo test
 [Prover (INTERNAL)] Credential Package received!
 [Prover (INTERNAL)] Storing Credential Package ...
 [Verifier (INTERNAL)] Initialising...
-[Verifier (INTERNAL)] Providing age requirement policy: age >= 20...
 [Verifier (INTERNAL)] Issued nonce: 13535666713248680844
-[Protocol Coordinator] Routing age policy & nonce to Prover...
+[Verifier (INTERNAL)] Issued cutoff epoch: 39010
+[Verifier (INTERNAL)] Cutoff: 2006-10-22
+[Protocol Coordinator] Routing DoB cutoff epoch & nonce to Prover...
 [Prover (INTERNAL)] Formatting inputs for native C++ witness generation...
 [Prover (INTERNAL)] Executing native C++ witness and calculating Groth16 proof...
 Generating witness for circuit age_gate
@@ -71,9 +72,8 @@ ProofPackage {
         c: (5670269595221411455404144621583929750482398102962666899027441575471995876224, 1081582602161234630161844251941647788398504459804946072398896160840828395603),
     },
 }
-[Verifier (INTERNAL)] Valid Commitment Signature!
+[Verifier (INTERNAL)] Valid Commitment & Schema Version Signature!
 [Verifier (INTERNAL)] Valid Proof!
 [Protocol Coordinator] Routing Proof Validity to Prover...
 [Prover (INTERNAL)] Received Access Decision: Granted
-
 ```
