@@ -8,6 +8,9 @@ use chrono::{Datelike, Months, Utc};
 use ed25519_dalek::Signature;
 
 /// Global protocol schema rules
+///
+/// `VERSION` is bound into the signed commitment payload, so credentials signed under
+/// a different version fail verification. Backward compatibility is not supported.
 pub mod schema {
     use super::*;
 
@@ -171,4 +174,19 @@ macro_rules! verifier_log {
     ($($arg:tt)*) => {
         println!("{}", format!("[Verifier (INTERNAL)] {}", format_args!($($arg)*)).yellow());
     };
+}
+
+#[cfg(test)]
+mod schema_tests {
+    use super::*;
+
+    #[test]
+    fn commitment_payload_is_32_le_bytes_then_version() {
+        let commitment = Fr::from_le_bytes_mod_order(&[0xAB; 32]);
+        let payload = schema::bind_commitment_with_version(&commitment);
+
+        assert_eq!(payload.len(), 33);
+        assert_eq!(&payload[..32], &commitment.into_bigint().to_bytes_le()[..]);
+        assert_eq!(payload[32], schema::VERSION);
+    }
 }
