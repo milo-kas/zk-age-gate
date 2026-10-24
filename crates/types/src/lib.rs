@@ -26,13 +26,20 @@ pub mod schema {
             .expect("Valid epoch date")
     }
 
-    /// Serialises the commitment AND schema version into a single byte array for
+    /// Serialises the commitment with the current schema version into a single byte array for
     /// Ed25519 signing and verification
     #[inline]
     pub fn bind_commitment_with_version(commitment: &Fr) -> [u8; 33] {
+        bind_commitment_with_version_at(commitment, VERSION)
+    }
+
+    /// Serialises the commitment with a custom schema version into a single byte array for
+    /// Ed25519 signing and verification
+    #[inline]
+    pub fn bind_commitment_with_version_at(commitment: &Fr, version: u8) -> [u8; 33] {
         let mut bytes = [0u8; 33];
         bytes[..32].copy_from_slice(&commitment.into_bigint().to_bytes_le());
-        bytes[32] = VERSION;
+        bytes[32] = version;
 
         bytes
     }
@@ -183,10 +190,23 @@ mod schema_tests {
     #[test]
     fn commitment_payload_is_32_le_bytes_then_version() {
         let commitment = Fr::from_le_bytes_mod_order(&[0xAB; 32]);
-        let payload = schema::bind_commitment_with_version(&commitment);
+        let commitment_bytes = commitment.into_bigint().to_bytes_le();
 
-        assert_eq!(payload.len(), 33);
-        assert_eq!(&payload[..32], &commitment.into_bigint().to_bytes_le()[..]);
-        assert_eq!(payload[32], schema::VERSION);
+        let current = schema::bind_commitment_with_version(&commitment);
+
+        // Standard version
+        assert_eq!(current.len(), 33);
+        assert_eq!(&current[..32], &commitment_bytes[..]);
+        assert_eq!(current[32], schema::VERSION);
+
+        const OUTDATED_VERSION: u8 = 0;
+        assert_ne!(OUTDATED_VERSION, schema::VERSION);
+
+        let outdated = schema::bind_commitment_with_version_at(&commitment, OUTDATED_VERSION);
+
+        // Outdated (Custom) version
+        assert_eq!(&outdated[..32], &commitment_bytes[..]);
+        assert_eq!(outdated[32], OUTDATED_VERSION);
+        assert_ne!(outdated, current);
     }
 }

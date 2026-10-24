@@ -142,18 +142,17 @@ fn denies_access_when_underage_prover_forges_over_threshold_commitment() {
 
 #[test]
 fn denies_access_when_credential_was_signed_under_outdated_schema() {
-    const OUTDATED_SCHEMA_VERSION: u8 = 0;
-
     let mock_issuer_key = SigningKey::from_bytes(&[42u8; 32]);
     let mut verifier = Verifier::new(18, mock_issuer_key.verifying_key());
     let _ = verifier.issue_challenge_at(test_reference_date());
 
+    const OUTDATED_SCHEMA_VERSION: u8 = 0;
+    assert_ne!(OUTDATED_SCHEMA_VERSION, schema::VERSION);
+
     let commitment = Fr::from(123u64);
 
     // Same construction as production, only the version byte differs
-    let mut payload = schema::bind_commitment_with_version(&commitment);
-    assert_ne!(OUTDATED_SCHEMA_VERSION, schema::VERSION);
-    *payload.last_mut().expect("33-byte payload") = OUTDATED_SCHEMA_VERSION;
+    let payload = schema::bind_commitment_with_version_at(&commitment, OUTDATED_SCHEMA_VERSION);
 
     let signature = mock_issuer_key.sign(&payload);
 
@@ -161,7 +160,7 @@ fn denies_access_when_credential_was_signed_under_outdated_schema() {
         commitment,
         pk_p: Fr::from(7u64),
         signature,
-        proof: Default::default()
+        proof: Default::default(),
     };
 
     assert_eq!(
