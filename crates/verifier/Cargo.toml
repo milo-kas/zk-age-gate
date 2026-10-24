@@ -9,7 +9,6 @@ types = { workspace = true }
 # ARK
 ark-std = { workspace = true }
 ark-bn254 = { workspace = true }
-ark-ff = { workspace = true }
 ark-groth16 = { workspace = true }
 ark-snark = { workspace = true }
 ark-circom = { workspace = true }
